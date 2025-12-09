@@ -120,7 +120,7 @@ def get_text_chunks(text):
 # Vector store handling with caching
 # Vector store handling with caching
 def get_vector_store(text_chunks, file_hash):
-    cache_path = f"faiss_index_{file_hash}"
+    cache_path = os.path.join("faiss_indices", f"faiss_index_{file_hash}")
     embeddings = GoogleGenerativeAIEmbeddings(model="models/embedding-001")  # Ensure embeddings are defined here
 
     if os.path.exists(cache_path):
@@ -129,6 +129,7 @@ def get_vector_store(text_chunks, file_hash):
         return vector_store
     else:
         # Create and save vector store if it doesn't exist
+        os.makedirs("faiss_indices", exist_ok=True)
         vector_store = FAISS.from_texts(text_chunks, embedding=embeddings)
         vector_store.save_local(cache_path)
         return vector_store

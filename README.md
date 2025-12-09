@@ -46,7 +46,7 @@ A Django-based learning platform that layers Google Gemini-powered search, summa
 ## Features
 - **Teacher tools**: subject management, PDF/Docx/PPT uploads, Gemini-powered quiz generator, quiz analytics, messaging with attachments.
 - **Student tools**: dashboard, AI PDF chat (vector search + Gemini), document summarizer, timed quizzes with review, knowledge bot (Wikipedia + Gemini), messaging with teachers.
-- **Storage**: uploaded files in `media/`, FAISS indexes for PDFs in `faiss_index*` directories (hashed per file).
+- **Storage**: uploaded files in `media/`, FAISS indexes for PDFs in `faiss_indices/` folder (hashed per file).
 
 ## Project Layout (key paths)
 ```
@@ -60,7 +60,7 @@ campus/
 ├── teachers/         # Quiz generation, subjects, reports, messaging
 ├── templates/        # Django templates (base, auth, teachers, students)
 ├── media/            # Uploads: notes/, chat_files/, proctoring/
-├── faiss_index/      # Default FAISS store + hashed per-PDF stores
+├── faiss_indices/    # FAISS vector indexes (one per PDF, hashed by content)
 └── student_campus/   # Django settings, urls, wsgi
 ```
 
@@ -129,8 +129,8 @@ campus/
    │   │   └── 2025/
    │   └── proctoring/
    │       └── 2025/
-   ├── faiss_index/
-   │   ├── index.faiss
+   ├── faiss_indices/
+   │   ├── faiss_index/
    │   ├── faiss_index_<hash>/
    │   │   └── index.faiss
    │   └── ...
@@ -147,13 +147,13 @@ campus/
 
 ## Operating the App
 - Run tests: `python manage.py test`
-- Rebuild a PDF’s FAISS index: delete its `faiss_index_<pdf_hash>/` directory; the next PDF chat request will recreate it.
+- Rebuild a PDF's FAISS index: delete its `faiss_indices/faiss_index_<pdf_hash>/` directory; the next PDF chat request will recreate it.
 - Large PDFs: text is split into 15k-character chunks with 2k overlap for retrieval (see `students/utils.py`).
 - File locations: course notes under `media/notes/YYYY/MM/DD/`, chat uploads under `media/chat_files/YYYY/MM/DD/`, proctoring assets under `media/proctoring/`.
 
 ## Troubleshooting
 - **AI features returning errors**: ensure `API_KEY` is set and valid; verify outbound network access.
-- **PDF chat returns empty/irrelevant answers**: delete the corresponding `faiss_index_<pdf_hash>/` folder to force re-indexing; confirm the PDF has extractable text (scans need Tesseract OCR).
+- **PDF chat returns empty/irrelevant answers**: delete the corresponding `faiss_indices/faiss_index_<pdf_hash>/` folder to force re-indexing; confirm the PDF has extractable text (scans need Tesseract OCR).
 - **OCR/`pdf2image` errors**: confirm Poppler and Tesseract are installed and on PATH; restart the shell after install.
 - **Static files in production**: set `DEBUG=False`, define `ALLOWED_HOSTS`, add `STATIC_ROOT`, and run `python manage.py collectstatic`.
 

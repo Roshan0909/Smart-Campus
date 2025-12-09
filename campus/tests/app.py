@@ -79,12 +79,13 @@ def get_vector_store(text_chunks):
     print(f"Creating embeddings for {len(text_chunks)} chunks...")
     embeddings = GenAIEmbeddings(client)
     vector_store = FAISS.from_texts(text_chunks, embedding=embeddings)
-    vector_store.save_local("faiss_index")  # This creates the index
+    os.makedirs("faiss_indices", exist_ok=True)
+    vector_store.save_local(os.path.join("faiss_indices", "faiss_index"))  # This creates the index
     print("✓ Vector store created and saved")
 
 def load_vector_store(embeddings):
     try:
-        new_db = FAISS.load_local("faiss_index", embeddings, allow_dangerous_deserialization=True)
+        new_db = FAISS.load_local(os.path.join("faiss_indices", "faiss_index"), embeddings, allow_dangerous_deserialization=True)
         return new_db
     except FileNotFoundError:
         print("ERROR: FAISS index not found. Please create it by processing PDF files first.")
@@ -138,7 +139,7 @@ def main():
     print("=" * 60)
     
     # Check if FAISS index exists
-    if os.path.exists("faiss_index"):
+    if os.path.exists(os.path.join("faiss_indices", "faiss_index")):
         print("✓ Found existing PDF index")
     else:
         print("⚠ No PDF index found. Please process a PDF first.")

@@ -99,10 +99,10 @@ def get_pdf_hash(pdf_path):
     with open(pdf_path, 'rb') as f:
         return hashlib.sha256(f.read()).hexdigest()
 
-def get_vector_store_for_pdf(pdf_path, index_folder="faiss_index"):
+def get_vector_store_for_pdf(pdf_path, index_folder="faiss_indices"):
     """Create or load vector store for a specific PDF"""
     pdf_hash = get_pdf_hash(pdf_path)
-    index_path = f"{index_folder}_{pdf_hash}"
+    index_path = os.path.join(index_folder, f"faiss_index_{pdf_hash}")
     
     embeddings = GenAIEmbeddings(client)
     
