@@ -3,8 +3,6 @@ Leaderboard utilities for calculating student rankings and generating AI suggest
 """
 import os
 from dotenv import load_dotenv
-import google.generativeai as genai
-from django.db.models import Count, Sum, Avg, Q
 from teachers.models import QuizAttempt
 
 # Load .env from the campus directory
@@ -120,95 +118,3 @@ def get_tier(engagement_score):
         return {'name': 'Bronze', 'color': '#CD7F32', 'icon': '📚'}
     else:
         return {'name': 'Beginner', 'color': '#95a5a6', 'icon': '🎓'}
-
-
-def generate_personalized_suggestion(student_data, leaderboard_position):
-    """
-    Use Gemini AI to generate personalized improvement suggestions
-    """
-    try:
-        genai.configure(api_key=os.getenv('API_KEY'))
-        model = genai.GenerativeModel('gemini-2.0-flash-exp')
-        
-        # Add unique context based on actual performance changes
-        performance_trend = "improving" if student_data['recent_avg'] > student_data['avg_percentage'] else "steady"
-        if student_data['recent_avg'] < student_data['avg_percentage'] - 5:
-            performance_trend = "declining"
-        
-        prompt = f"""You are an encouraging educational AI coach. Generate ONE SHORT personalized tip (maximum 15 words).
-
-Student: Rank #{student_data['rank']}/{leaderboard_position['total_students']}
-Score: {student_data['avg_percentage']}% average, {student_data['recent_avg']}% recent ({performance_trend})
-Completed: {student_data['total_quizzes']} quizzes, {student_data['perfect_scores']} perfect
-Tier: {student_data['tier']['name']}
-
-Create a VERY SHORT (10-15 words), specific, actionable tip based on their performance trend.
-
-Examples:
-- Top performer + improving: "Keep crushing it! Try teaching others to master concepts."
-- Mid-rank + steady: "Review wrong answers after each quiz to boost scores."
-- Lower rank: "Start with 15-min daily reviews before attempting quizzes."
-- Declining: "Take a break, then review basics before next quiz."
-
-NO emojis, NO formatting, NO titles. Just one practical sentence (max 15 words)."""
-        
-        response = model.generate_content(prompt)
-        suggestion = response.text.strip().replace('**', '').replace('🎯', '').replace('*', '')
-        # Remove any line breaks and extra spaces
-        suggestion = ' '.join(suggestion.split())
-        # Truncate if too long
-        words = suggestion.split()
-        if len(words) > 15:
-            suggestion = ' '.join(words[:15]) + '...'
-        return suggestion
-        
-    except Exception as e:
-        print(f"AI suggestion error: {e}")
-        # Smart fallback based on actual data
-        if student_data['avg_percentage'] >= 85:
-            return "Excellent work! Try helping classmates to deepen your understanding."
-        elif student_data['avg_percentage'] >= 70:
-            return "Good progress! Review quiz mistakes to reach the next level."
-        elif student_data['recent_avg'] > student_data['avg_percentage']:
-            return "You're improving! Keep this momentum with daily practice sessions."
-        elif student_data['total_quizzes'] < 3:
-            return "Take more quizzes to build confidence and improve scores."
-        else:
-            return "Focus on mastering one topic at a time for better results."
-
-
-def generate_overall_insights(leaderboard_data):
-    """
-    Generate AI-powered insights about the overall leaderboard trends
-    """
-    try:
-        if not leaderboard_data:
-            return "No student data available yet."
-        
-        genai.configure(api_key=os.getenv('API_KEY'))
-        model = genai.GenerativeModel('gemini-2.0-flash-exp')
-        
-        # Calculate statistics
-        avg_score = sum([d['avg_percentage'] for d in leaderboard_data]) / len(leaderboard_data)
-        top_performer = leaderboard_data[0] if leaderboard_data else None
-        total_students = len(leaderboard_data)
-        
-        prompt = f"""You are an educational analytics AI providing insights about class performance.
-
-Class Statistics:
-- Total Active Students: {total_students}
-- Average Class Score: {avg_score:.2f}%
-- Top Performer Score: {top_performer['avg_percentage']:.2f}% (Rank #1)
-- Score Range: {leaderboard_data[-1]['avg_percentage']:.2f}% to {top_performer['avg_percentage']:.2f}%
-
-Generate a brief, insightful observation about the class performance (2-3 sentences). 
-Make it encouraging but honest. Highlight positive trends and areas of strength.
-Keep it under 80 words and friendly in tone.
-
-Format: Plain text, no emojis, professional but warm."""
-        
-        response = model.generate_content(prompt)
-        return response.text.strip()
-        
-    except Exception as e:
-        return "The class is showing great engagement with the learning materials. Keep up the excellent work!"

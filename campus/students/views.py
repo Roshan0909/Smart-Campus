@@ -2,14 +2,14 @@ from django.shortcuts import render, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponseForbidden, JsonResponse
 from django.views.decorators.http import require_POST
-from django.db.models import Q, Max
+from django.db.models import Q
 from teachers.models import Subject, PDFNote, ChatMessage
 from .models import ChatHistory
 from .utils import get_answer_for_pdf
 from authentication.models import User
 import json
 import requests
-import re
+
 
 @login_required
 def student_dashboard(request):
