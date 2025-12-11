@@ -129,6 +129,71 @@
         </div>
     </div>
 
+    <!-- Risk Assessment Card -->
+    <div class="card shadow-sm mb-4" style="border-left: 4px solid {{ risk_data.risk_color }};">
+        <div class="card-header" style="background: linear-gradient(135deg, {{ risk_data.risk_color }}15 0%, {{ risk_data.risk_color }}25 100%);">
+            <h5 class="mb-0" style="color: {{ risk_data.risk_color }};"><i class="bi bi-shield-exclamation"></i> Test Integrity Assessment</h5>
+        </div>
+        <div class="card-body">
+            <div class="row align-items-center">
+                <div class="col-md-4 text-center">
+                    <div style="position: relative; width: 120px; height: 120px; margin: 0 auto;">
+                        <svg width="120" height="120" style="transform: rotate(-90deg);">
+                            <circle cx="60" cy="60" r="50" fill="none" stroke="#e0e0e0" stroke-width="10"/>
+                            <circle cx="60" cy="60" r="50" fill="none" stroke="{{ risk_data.risk_color }}" 
+                                    stroke-width="10" stroke-dasharray="{{ risk_data.risk_score * 3.14 }} 314" 
+                                    stroke-linecap="round"/>
+                        </svg>
+                        <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center;">
+                            <h2 style="margin: 0; color: {{ risk_data.risk_color }}; font-weight: 700;">{{ risk_data.risk_score }}</h2>
+                            <small style="color: #666;">Risk Score</small>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-8">
+                    <div class="mb-3">
+                        <h4 class="mb-2" style="color: {{ risk_data.risk_color }};">
+                            <span class="badge" style="background-color: {{ risk_data.risk_color }}; font-size: 1rem; padding: 0.5rem 1rem;">
+                                {{ risk_data.risk_level }}
+                            </span>
+                        </h4>
+                        <h5 style="color: {{ risk_data.risk_color }}; font-weight: 600;">Status: {{ risk_data.risk_status }}</h5>
+                    </div>
+                    <div class="row text-center mt-3">
+                        <div class="col-4">
+                            <div class="p-2" style="background: #fff3cd; border-radius: 8px;">
+                                <h4 class="mb-0" style="color: #856404;">{{ attempt.proctoring_violations|length }}</h4>
+                                <small class="text-muted">Violations</small>
+                            </div>
+                        </div>
+                        <div class="col-4">
+                            <div class="p-2" style="background: #f8d7da; border-radius: 8px;">
+                                <h4 class="mb-0" style="color: #721c24;">{{ attempt.tab_switch_count }}</h4>
+                                <small class="text-muted">Tab Switches</small>
+                            </div>
+                        </div>
+                        <div class="col-4">
+                            <div class="p-2" style="background: #d1ecf1; border-radius: 8px;">
+                                <h4 class="mb-0" style="color: #0c5460;">{{ attempt.fullscreen_exit_count }}</h4>
+                                <small class="text-muted">Fullscreen Exits</small>
+                            </div>
+                        </div>
+                    </div>
+                    {% if risk_data.details %}
+                    <div class="mt-3">
+                        <h6>Risk Factors:</h6>
+                        <ul class="mb-0" style="font-size: 0.9rem;">
+                            {% for detail in risk_data.details %}
+                            <li style="color: {{ risk_data.risk_color }};">{{ detail }}</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Questions and Answers -->
     <h4 class="mb-3">Detailed Question Review</h4>
     {% for result in question_results %}

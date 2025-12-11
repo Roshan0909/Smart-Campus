@@ -295,6 +295,9 @@ def quiz_report(request, attempt_id):
     percentage = (attempt.score / total_questions * 100) if total_questions > 0 else 0
     wrong_percentage = (wrong_count / total_questions * 100) if total_questions > 0 else 0
     
+    # Calculate risk assessment
+    risk_data = attempt.calculate_risk_score()
+    
     return render(request, 'students/quiz_report.html', {
         'attempt': attempt,
         'quiz': quiz,
@@ -303,7 +306,8 @@ def quiz_report(request, attempt_id):
         'total_questions': total_questions,
         'correct_count': correct_count,
         'wrong_count': wrong_count,
-        'wrong_percentage': round(wrong_percentage, 2)
+        'wrong_percentage': round(wrong_percentage, 2),
+        'risk_data': risk_data
     })
 
 @login_required

@@ -146,6 +146,17 @@
     .table {
         white-space: nowrap;
     }
+    .risk-badge {
+        font-weight: 700;
+        padding: 0.35rem 0.6rem;
+        border-radius: 0.5rem;
+        display: inline-block;
+        text-align: center;
+    }
+    .risk-details {
+        font-size: 0.7rem;
+        margin-top: 0.2rem;
+    }
 </style>
 <div class="container-fluid py-3 px-3">
     <!-- Header -->
@@ -201,14 +212,14 @@
                     </select>
                 </div>
 
-                <!-- Difficulty Filter -->
+                <!-- Risk Assessment Filter -->
                 <div class="col-md-3">
-                    <label class="form-label">Difficulty</label>
-                    <select class="form-select" id="difficultyFilter" onchange="applyFilters()">
-                        <option value="">All Difficulties</option>
-                        <option value="easy">Easy</option>
-                        <option value="medium">Medium</option>
-                        <option value="hard">Hard</option>
+                    <label class="form-label">Risk Status</label>
+                    <select class="form-select" id="riskFilter" onchange="applyFilters()">
+                        <option value="">All Risk Levels</option>
+                        <option value="accept">✓ ACCEPT (Fair)</option>
+                        <option value="review">⚠ REVIEW (Suspicious)</option>
+                        <option value="reject">✗ REJECT (Unfair)</option>
                     </select>
                 </div>
 
@@ -221,17 +232,6 @@
                 <div class="col-md-3">
                     <label class="form-label">End Date</label>
                     <input type="date" class="form-control" id="endDate" onchange="applyFilters()">
-                </div>
-
-                <!-- Score Range -->
-                <div class="col-md-3">
-                    <label class="form-label">Min Score</label>
-                    <input type="number" class="form-control" id="minScore" min="0" onchange="applyFilters()" placeholder="0">
-                </div>
-
-                <div class="col-md-3">
-                    <label class="form-label">Max Score</label>
-                    <input type="number" class="form-control" id="maxScore" min="0" onchange="applyFilters()" placeholder="1000">
                 </div>
 
                 <!-- Search -->
@@ -299,14 +299,18 @@
                             <th>Quiz</th>
                             <th>Student</th>
                             <th>Score</th>
-                            <th>Percentage</th>
+                            <th>%</th>
+                            <th title="Risk Score">Risk</th>
+                            <th title="Recommendation">Action</th>
+                            <th title="Proctoring Violations">Viol.</th>
+                            <th title="Tab Switches">Tabs</th>
                             <th>Completed At</th>
                             <th>Status</th>
                         </tr>
                     </thead>
                     <tbody id="tableBody">
                         <tr>
-                            <td colspan="6" class="text-center text-muted py-4">
+                            <td colspan="10" class="text-center text-muted py-4">
                                 <i class="bi bi-hourglass me-2"></i>Loading data...
                             </td>
                         </tr>
@@ -336,11 +340,9 @@ async function applyFilters(page = 1) {
         quiz_id: document.getElementById('quizFilter').value,
         subject_id: document.getElementById('subjectFilter').value,
         student_id: document.getElementById('studentFilter').value,
-        difficulty: document.getElementById('difficultyFilter').value,
+        risk_filter: document.getElementById('riskFilter').value,
         start_date: document.getElementById('startDate').value,
         end_date: document.getElementById('endDate').value,
-        min_score: document.getElementById('minScore').value,
-        max_score: document.getElementById('maxScore').value,
         search: document.getElementById('searchBox').value
     };
 
@@ -358,6 +360,18 @@ async function applyFilters(page = 1) {
 
         if (data.success) {
             allAttempts = data.attempts;
+            
+            // Apply client-side risk filter
+            const riskFilter = document.getElementById('riskFilter').value;
+            if (riskFilter) {
+                allAttempts = allAttempts.filter(attempt => {
+                    if (riskFilter === 'accept') return attempt.risk_score < 25;
+                    if (riskFilter === 'review') return attempt.risk_score >= 25 && attempt.risk_score < 50;
+                    if (riskFilter === 'reject') return attempt.risk_score >= 50;
+                    return true;
+                });
+            }
+            
             updateStatistics(data.statistics);
             
             // Apply pagination
@@ -389,7 +403,7 @@ function updateTable(attempts) {
     const tbody = document.getElementById('tableBody');
     
     if (attempts.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="6" class="text-center text-muted py-4">No data found</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="10" class="text-center text-muted py-4">No data found</td></tr>';
         return;
     }
 
@@ -403,6 +417,24 @@ function updateTable(attempts) {
                     ${attempt.percentage}%
                 </span>
             </td>
+            <td>
+                <span class="badge" style="background-color: ${attempt.risk_color}; font-size: 0.7rem; font-weight: 600; padding: 0.25rem 0.5rem;" title="${attempt.risk_status} - Score: ${attempt.risk_score}/100">
+                    ${attempt.risk_score}
+                </span>
+            </td>
+            <td>
+                ${attempt.risk_score >= 50 ? 
+                    '<span class="badge bg-danger" style="font-size: 0.7rem; font-weight: 700;">REJECT</span>' : 
+                    attempt.risk_score >= 25 ? 
+                    '<span class="badge bg-warning text-dark" style="font-size: 0.7rem; font-weight: 700;">REVIEW</span>' : 
+                    '<span class="badge bg-success" style="font-size: 0.7rem; font-weight: 700;">ACCEPT</span>'}
+            </td>
+            <td>
+                <span class="badge bg-danger" style="font-size: 0.7rem;">${attempt.violation_count}</span>
+            </td>
+            <td>
+                <span class="badge bg-warning text-dark" style="font-size: 0.7rem;">${attempt.tab_switch_count}</span>
+            </td>
             <td><small>${attempt.completed_at}</small></td>
             <td><span class="badge bg-info">${attempt.status}</span></td>
         </tr>
@@ -413,11 +445,9 @@ function resetFilters() {
     document.getElementById('quizFilter').value = '';
     document.getElementById('subjectFilter').value = '';
     document.getElementById('studentFilter').value = '';
-    document.getElementById('difficultyFilter').value = '';
+    document.getElementById('riskFilter').value = '';
     document.getElementById('startDate').value = '';
     document.getElementById('endDate').value = '';
-    document.getElementById('minScore').value = '';
-    document.getElementById('maxScore').value = '';
     document.getElementById('searchBox').value = '';
     applyFilters();
 }
@@ -427,11 +457,9 @@ function downloadReportPDF() {
         quiz_id: document.getElementById('quizFilter').value,
         subject_id: document.getElementById('subjectFilter').value,
         student_id: document.getElementById('studentFilter').value,
-        difficulty: document.getElementById('difficultyFilter').value,
+        risk_filter: document.getElementById('riskFilter').value,
         start_date: document.getElementById('startDate').value,
-        end_date: document.getElementById('endDate').value,
-        min_score: document.getElementById('minScore').value,
-        max_score: document.getElementById('maxScore').value
+        end_date: document.getElementById('endDate').value
     });
 
     window.location.href = `{% url 'download_quiz_report_pdf' %}?${filters.toString()}`;

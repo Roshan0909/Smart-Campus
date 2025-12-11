@@ -111,6 +111,9 @@ def filter_quiz_reports(request):
             if not student_name:
                 student_name = attempt.student.username
             
+            # Calculate risk assessment
+            risk_data = attempt.calculate_risk_score()
+            
             attempts_data.append({
                 'id': attempt.id,
                 'quiz_title': attempt.quiz.title,
@@ -119,7 +122,14 @@ def filter_quiz_reports(request):
                 'total': total,
                 'percentage': round(percentage, 2),
                 'completed_at': attempt.completed_at.strftime('%Y-%m-%d %H:%M') if attempt.completed_at else 'N/A',
-                'status': 'Completed' if attempt.completed_at else 'In Progress'
+                'status': 'Completed' if attempt.completed_at else 'In Progress',
+                'risk_score': risk_data['risk_score'],
+                'risk_level': risk_data['risk_level'],
+                'risk_color': risk_data['risk_color'],
+                'risk_status': risk_data['risk_status'],
+                'violation_count': len(attempt.proctoring_violations) if attempt.proctoring_violations else 0,
+                'tab_switch_count': attempt.tab_switch_count,
+                'fullscreen_exit_count': attempt.fullscreen_exit_count
             })
         
         return JsonResponse({
@@ -152,26 +162,17 @@ def download_quiz_report_pdf(request):
         if request.GET.get('student_id'):
             report_filter.set_student_filter(request.GET['student_id'])
         
-        if request.GET.get('difficulty'):
-            report_filter.set_difficulty_filter(request.GET['difficulty'])
-        
         # Date range
         if request.GET.get('start_date') and request.GET.get('end_date'):
             start_date = timezone.datetime.fromisoformat(request.GET['start_date'])
             end_date = timezone.datetime.fromisoformat(request.GET['end_date'])
             report_filter.set_date_range_filter(start_date, end_date)
         
-        # Score range
-        if request.GET.get('min_score') and request.GET.get('min_score') != '':
-            try:
-                min_score = int(request.GET['min_score'])
-                max_score = int(request.GET.get('max_score', 1000)) if request.GET.get('max_score') and request.GET.get('max_score') != '' else 1000
-                report_filter.set_score_range_filter(min_score, max_score)
-            except (ValueError, TypeError):
-                pass  # Skip if conversion fails
+        # Apply risk filter if specified
+        risk_filter_value = request.GET.get('risk_filter')
         
         # Generate PDF
-        generator = QuizReportGenerator(report_filter)
+        generator = QuizReportGenerator(report_filter, risk_filter=risk_filter_value)
         pdf_buffer, filename = generator.generate_pdf()
         
         # Return PDF response

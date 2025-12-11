@@ -97,6 +97,68 @@ class QuizAttempt(models.Model):
     tab_switch_count = models.IntegerField(default=0)
     fullscreen_exit_count = models.IntegerField(default=0)
     
+    def calculate_risk_score(self):
+        """
+        Calculate risk score based on violations, tab switches, and performance
+        Returns: dict with risk_score (0-100), risk_level, risk_color, and details
+        """
+        risk_score = 0
+        details = []
+        
+        # 1. Proctoring violations (max 40 points)
+        violation_count = len(self.proctoring_violations) if self.proctoring_violations else 0
+        if violation_count > 0:
+            violation_risk = min(violation_count * 8, 40)  # 8 points per violation, max 40
+            risk_score += violation_risk
+            details.append(f"{violation_count} proctoring violation(s) (+{violation_risk} risk)")
+        
+        # 2. Tab switches (max 30 points)
+        if self.tab_switch_count > 0:
+            tab_risk = min(self.tab_switch_count * 5, 30)  # 5 points per switch, max 30
+            risk_score += tab_risk
+            details.append(f"{self.tab_switch_count} tab switch(es) (+{tab_risk} risk)")
+        
+        # 3. Fullscreen exits (max 20 points)
+        if self.fullscreen_exit_count > 0:
+            fullscreen_risk = min(self.fullscreen_exit_count * 4, 20)  # 4 points per exit, max 20
+            risk_score += fullscreen_risk
+            details.append(f"{self.fullscreen_exit_count} fullscreen exit(s) (+{fullscreen_risk} risk)")
+        
+        # 4. Performance anomaly (max 10 points)
+        # Suspiciously high score with violations suggests cheating
+        if self.score and self.total_points:
+            percentage = (self.score / self.total_points) * 100
+            if percentage >= 90 and (violation_count > 2 or self.tab_switch_count > 3):
+                performance_risk = 10
+                risk_score += performance_risk
+                details.append(f"High score with violations (+{performance_risk} risk)")
+        
+        # Determine risk level and color
+        if risk_score >= 50:
+            risk_level = "HIGH RISK"
+            risk_color = "#dc3545"  # Red
+            risk_status = "UNFAIR"
+        elif risk_score >= 25:
+            risk_level = "MODERATE RISK"
+            risk_color = "#fd7e14"  # Orange
+            risk_status = "SUSPICIOUS"
+        elif risk_score >= 10:
+            risk_level = "LOW RISK"
+            risk_color = "#ffc107"  # Yellow
+            risk_status = "FAIR (Minor Issues)"
+        else:
+            risk_level = "MINIMAL RISK"
+            risk_color = "#28a745"  # Green
+            risk_status = "FAIR"
+        
+        return {
+            'risk_score': min(risk_score, 100),  # Cap at 100
+            'risk_level': risk_level,
+            'risk_color': risk_color,
+            'risk_status': risk_status,
+            'details': details
+        }
+    
     def __str__(self):
         return f"{self.student.username} - {self.quiz.title}"
     

@@ -151,8 +151,9 @@ class QuizReportFilter:
 class QuizReportGenerator:
     """Generate detailed PDF reports from filtered quiz data"""
     
-    def __init__(self, filter_obj):
+    def __init__(self, filter_obj, risk_filter=None):
         self.filter_obj = filter_obj
+        self.risk_filter = risk_filter
         self.styles = getSampleStyleSheet()
         self._setup_custom_styles()
     
@@ -180,6 +181,22 @@ class QuizReportGenerator:
             parent=self.styles['Normal'],
             fontSize=9,
             alignment=TA_LEFT
+        ))
+        
+        self.styles.add(ParagraphStyle(
+            name='CenterAlign',
+            parent=self.styles['Normal'],
+            fontSize=7,
+            alignment=TA_CENTER,
+            leading=9
+        ))
+        
+        self.styles.add(ParagraphStyle(
+            name='SmallText',
+            parent=self.styles['Normal'],
+            fontSize=7,
+            alignment=TA_LEFT,
+            leading=9
         ))
     
     def generate_pdf(self, filename=None):
@@ -224,16 +241,73 @@ class QuizReportGenerator:
         elements.append(Paragraph("📈 Summary Statistics", self.styles['CustomHeading']))
         elements.append(Spacer(1, 0.15*inch))
         
+        # Calculate risk statistics on filtered attempts
+        attempts = list(self.filter_obj.get_attempts())
+        
+        # Apply risk filter if specified
+        if self.risk_filter:
+            filtered_attempts = []
+            for attempt in attempts:
+                risk_score = attempt.calculate_risk_score()['risk_score']
+                if self.risk_filter == 'accept' and risk_score < 25:
+                    filtered_attempts.append(attempt)
+                elif self.risk_filter == 'review' and 25 <= risk_score < 50:
+                    filtered_attempts.append(attempt)
+                elif self.risk_filter == 'reject' and risk_score >= 50:
+                    filtered_attempts.append(attempt)
+            attempts = filtered_attempts
+        
+        risk_scores = [a.calculate_risk_score()['risk_score'] for a in attempts if a.completed_at]
+        high_risk_count = sum(1 for score in risk_scores if score >= 50)
+        moderate_risk_count = sum(1 for score in risk_scores if 25 <= score < 50)
+        low_risk_count = sum(1 for score in risk_scores if 10 <= score < 25)
+        fair_count = sum(1 for score in risk_scores if score < 10)
+        total_violations = sum(len(a.proctoring_violations) if a.proctoring_violations else 0 for a in attempts)
+        total_tab_switches = sum(a.tab_switch_count for a in attempts)
+        max_risk = max(risk_scores) if risk_scores else 0
+        min_risk = min(risk_scores) if risk_scores else 0
+        avg_risk = round(sum(risk_scores) / len(risk_scores), 2) if risk_scores else 0
+        
+        # Recalculate stats for filtered attempts
+        completed_attempts = [a for a in attempts if a.completed_at]
+        total_attempts_count = len(attempts)
+        completed_count = len(completed_attempts)
+        unique_students = len(set(a.student_id for a in attempts))
+        unique_quizzes = len(set(a.quiz_id for a in attempts))
+        
+        if completed_attempts:
+            avg_score = round(sum(a.score for a in completed_attempts if a.score) / len(completed_attempts), 2)
+            scores = [a.score for a in completed_attempts if a.score and a.total_points]
+            totals = [a.total_points for a in completed_attempts if a.score and a.total_points]
+            avg_percentage = round(sum((s/t*100) for s, t in zip(scores, totals)) / len(scores), 2) if scores else 0
+            max_score = max(a.score for a in completed_attempts if a.score)
+            min_score = min(a.score for a in completed_attempts if a.score)
+        else:
+            avg_score = 0
+            avg_percentage = 0
+            max_score = 0
+            min_score = 0
+        
         stats_data = [
             ['<b>Metric</b>', '<b>Value</b>'],
-            ['Total Attempts', str(stats['total_attempts'])],
-            ['Completed Attempts', str(stats['completed_attempts'])],
-            ['Unique Students', str(stats['unique_students'])],
-            ['Total Quizzes', str(stats['total_quizzes'])],
-            ['Average Score', f"{stats['avg_score']} pts"],
-            ['Average Percentage', f"{stats['avg_percentage']}%" if stats['avg_percentage'] else 'N/A'],
-            ['Highest Score', str(stats['max_score']) if stats['max_score'] else 'N/A'],
-            ['Lowest Score', str(stats['min_score']) if stats['min_score'] else 'N/A'],
+            ['Total Attempts', str(total_attempts_count)],
+            ['Completed Attempts', str(completed_count)],
+            ['Unique Students', str(unique_students)],
+            ['Total Quizzes', str(unique_quizzes)],
+            ['Average Score', f"{avg_score} pts"],
+            ['Average Percentage', f"{avg_percentage}%"],
+            ['Highest Score', str(max_score)],
+            ['Lowest Score', str(min_score)],
+            ['<b>--- Risk Assessment ---</b>', ''],
+            ['Fair Attempts', f'<font color="#28a745">{fair_count}</font>'],
+            ['Low Risk Attempts', f'<font color="#ffc107">{low_risk_count}</font>'],
+            ['Moderate Risk Attempts', f'<font color="#fd7e14">{moderate_risk_count}</font>'],
+            ['High Risk (Unfair) Attempts', f'<font color="#dc3545">{high_risk_count}</font>'],
+            ['Average Risk Score', f'{avg_risk}'],
+            ['Maximum Risk Score', f'<font color="#dc3545">{max_risk}</font>'],
+            ['Minimum Risk Score', f'<font color="#28a745">{min_risk}</font>'],
+            ['Total Violations', f'<font color="#dc3545">{total_violations}</font>'],
+            ['Total Tab Switches', f'<font color="#ffc107">{total_tab_switches}</font>'],
         ]
         
         stats_table = Table(stats_data, colWidths=[3.5*inch, 2*inch])
@@ -264,15 +338,32 @@ class QuizReportGenerator:
         elements.append(Paragraph("📋 Detailed Attempt Records", self.styles['CustomHeading']))
         elements.append(Spacer(1, 0.15*inch))
         
-        attempts = self.filter_obj.get_attempts()
+        attempts = list(self.filter_obj.get_attempts())
+        
+        # Apply risk filter if specified
+        if self.risk_filter:
+            filtered_attempts = []
+            for attempt in attempts:
+                risk_score = attempt.calculate_risk_score()['risk_score']
+                if self.risk_filter == 'accept' and risk_score < 25:
+                    filtered_attempts.append(attempt)
+                elif self.risk_filter == 'review' and 25 <= risk_score < 50:
+                    filtered_attempts.append(attempt)
+                elif self.risk_filter == 'reject' and risk_score >= 50:
+                    filtered_attempts.append(attempt)
+            attempts = filtered_attempts
         
         # Create table data using Paragraph objects for proper rendering
         header = [
             Paragraph('<b>Quiz Title</b>', self.styles['Normal']),
-            Paragraph('<b>Student Name</b>', self.styles['Normal']),
-            Paragraph('<b>Score</b>', self.styles['Normal']),
-            Paragraph('<b>Percentage</b>', self.styles['Normal']),
-            Paragraph('<b>Completed Date</b>', self.styles['Normal']),
+            Paragraph('<b>Student</b>', self.styles['Normal']),
+            Paragraph('<b>Score</b>', self.styles['CenterAlign']),
+            Paragraph('<b>%</b>', self.styles['CenterAlign']),
+            Paragraph('<b>Risk</b>', self.styles['CenterAlign']),
+            Paragraph('<b>Status</b>', self.styles['CenterAlign']),
+            Paragraph('<b>Viol</b>', self.styles['CenterAlign']),
+            Paragraph('<b>Tabs</b>', self.styles['CenterAlign']),
+            Paragraph('<b>Date</b>', self.styles['CenterAlign']),
         ]
         
         table_data = [header]
@@ -287,38 +378,56 @@ class QuizReportGenerator:
             if not student_name or student_name.isspace():
                 student_name = attempt.student.username
             
+            # Calculate risk assessment
+            risk_data = attempt.calculate_risk_score()
+            violation_count = len(attempt.proctoring_violations) if attempt.proctoring_violations else 0
+            
+            # Determine status recommendation
+            if risk_data['risk_score'] >= 50:
+                status = '<font color="#dc3545"><b>REJECT</b></font>'
+            elif risk_data['risk_score'] >= 25:
+                status = '<font color="#fd7e14"><b>REVIEW</b></font>'
+            else:
+                status = '<font color="#28a745"><b>ACCEPT</b></font>'
+            
             row = [
-                Paragraph(str(attempt.quiz.title)[:30], self.styles['Normal']),
-                Paragraph(str(student_name)[:35], self.styles['Normal']),
-                Paragraph(str(f"{score}/{total}"), self.styles['Normal']),
-                Paragraph(str(f"{percentage}%"), self.styles['Normal']),
-                Paragraph(str(attempt.completed_at.strftime('%d-%m-%Y')) if attempt.completed_at else 'N/A', self.styles['Normal']),
+                Paragraph(str(attempt.quiz.title)[:18], self.styles['SmallText']),
+                Paragraph(str(student_name)[:20], self.styles['SmallText']),
+                Paragraph(f"{score}/{total}", self.styles['CenterAlign']),
+                Paragraph(f"{percentage}%", self.styles['CenterAlign']),
+                Paragraph(f'<font color="{risk_data["risk_color"]}"><b>{risk_data["risk_score"]}</b></font>', self.styles['CenterAlign']),
+                Paragraph(status.replace('<b>', '').replace('</b>', ''), self.styles['CenterAlign']),
+                Paragraph(str(violation_count), self.styles['CenterAlign']),
+                Paragraph(str(attempt.tab_switch_count), self.styles['CenterAlign']),
+                Paragraph(attempt.completed_at.strftime('%d/%m') if attempt.completed_at else '-', self.styles['CenterAlign']),
             ]
             table_data.append(row)
         
         if len(table_data) > 1:
-            attempts_table = Table(table_data, colWidths=[1.5*inch, 2.2*inch, 0.9*inch, 1*inch, 1.4*inch])
+            attempts_table = Table(table_data, colWidths=[1.1*inch, 1.1*inch, 0.5*inch, 0.35*inch, 0.35*inch, 0.6*inch, 0.35*inch, 0.35*inch, 0.5*inch])
             attempts_table.setStyle(TableStyle([
                 ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#0891b2')),
                 ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
-                ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
+                ('ALIGN', (0, 0), (1, -1), 'LEFT'),
+                ('ALIGN', (2, 0), (-1, -1), 'CENTER'),
                 ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
                 ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
-                ('FONTSIZE', (0, 0), (-1, 0), 10),
-                ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
-                ('GRID', (0, 0), (-1, -1), 1, colors.HexColor('#a5f3fc')),
-                ('ROWBACKGROUNDS', (0, 1), (-1, -1), [colors.white, colors.HexColor('#e0f7fb')]),
-                ('FONTSIZE', (0, 1), (-1, -1), 9),
-                ('TOPPADDING', (0, 1), (-1, -1), 10),
-                ('BOTTOMPADDING', (0, 1), (-1, -1), 10),
-                ('LEFTPADDING', (0, 0), (-1, -1), 8),
-                ('RIGHTPADDING', (0, 0), (-1, -1), 8),
+                ('FONTSIZE', (0, 0), (-1, 0), 8),
+                ('BOTTOMPADDING', (0, 0), (-1, 0), 6),
+                ('TOPPADDING', (0, 0), (-1, 0), 6),
+                ('GRID', (0, 0), (-1, -1), 0.5, colors.HexColor('#d1d5db')),
+                ('ROWBACKGROUNDS', (0, 1), (-1, -1), [colors.white, colors.HexColor('#f9fafb')]),
+                ('FONTSIZE', (0, 1), (-1, -1), 7),
+                ('TOPPADDING', (0, 1), (-1, -1), 4),
+                ('BOTTOMPADDING', (0, 1), (-1, -1), 4),
+                ('LEFTPADDING', (0, 0), (-1, -1), 4),
+                ('RIGHTPADDING', (0, 0), (-1, -1), 4),
             ]))
             elements.append(attempts_table)
             
             # Add summary at bottom
             elements.append(Spacer(1, 0.15*inch))
-            summary_text = f"<i>Total Records: <b>{attempts.count()}</b></i>"
+            summary_text = f"<i>Total Records: <b>{len(attempts)}</b></i>"
             elements.append(Paragraph(summary_text, self.styles['Normal']))
         else:
             elements.append(Paragraph("<i>No data available for the selected filters.</i>", self.styles['Normal']))
