@@ -5,32 +5,56 @@
 <style>
     .page-header {
         background: linear-gradient(135deg, #164e63 0%, #0891b2 100%);
-        padding: 2rem;
-        border-radius: 0.75rem;
-        margin-bottom: 2rem;
-        box-shadow: 0 4px 12px rgba(6, 182, 212, 0.15);
+        padding: 1.25rem 1.5rem;
+        border-radius: 0.5rem;
+        margin-bottom: 1.5rem;
+        box-shadow: 0 2px 8px rgba(6, 182, 212, 0.15);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
     }
     
     .header-content h1 {
         color: white;
-        font-size: 1.75rem;
+        font-size: 1.4rem;
         font-weight: 800;
-        margin: 0 0 0.5rem 0;
+        margin: 0 0 0.25rem 0;
         display: flex;
         align-items: center;
-        gap: 0.6rem;
+        gap: 0.5rem;
     }
     
     .header-content h1 i {
-        font-size: 1.5rem;
+        font-size: 1.2rem;
         color: #67e8f9;
     }
     
     .page-subtitle {
         color: #cffafe;
-        font-size: 0.9rem;
+        font-size: 0.8rem;
         margin: 0;
         font-weight: 500;
+    }
+    
+    .btn-back {
+        background: white;
+        color: #0891b2;
+        border: none;
+        padding: 0.6rem 1.25rem;
+        border-radius: 0.4rem;
+        font-weight: 600;
+        font-size: 0.875rem;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        transition: all 0.2s ease;
+        text-decoration: none;
+    }
+    
+    .btn-back:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(255, 255, 255, 0.3);
+        color: #0891b2;
     }
     
     .assignment-list-container {
@@ -43,8 +67,8 @@
     .assignment-list-item {
         display: flex;
         align-items: center;
-        gap: 1.5rem;
-        padding: 1.25rem 1.5rem;
+        gap: 1rem;
+        padding: 1rem 1.25rem;
         border-bottom: 1px solid #e2e8f0;
         transition: all 0.3s ease;
         background: white;
@@ -237,6 +261,9 @@
             </h1>
             <p class="page-subtitle">Track and manage coding assignments for your students</p>
         </div>
+        <a href="{% url 'teacher_coding_problems' %}" class="btn-back">
+            <i class="bi bi-arrow-left"></i> Back to Problems
+        </a>
     </div>
 
     {% if not assignments %}
