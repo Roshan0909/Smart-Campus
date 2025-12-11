@@ -1,0 +1,398 @@
+{% extends 'teachers/base_teacher.html' %}
+{% block title %}My Problems - Code Arena{% endblock %}
+
+{% block teacher_content %}
+<style>
+    .page-header {
+        background: linear-gradient(135deg, #164e63 0%, #0891b2 100%);
+        padding: 2rem;
+        border-radius: 0.75rem;
+        margin-bottom: 2rem;
+        box-shadow: 0 4px 12px rgba(6, 182, 212, 0.15);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    
+    .header-content h1 {
+        color: white;
+        font-size: 1.75rem;
+        font-weight: 800;
+        margin: 0 0 0.5rem 0;
+        display: flex;
+        align-items: center;
+        gap: 0.6rem;
+    }
+    
+    .header-content h1 i {
+        font-size: 1.5rem;
+        color: #67e8f9;
+    }
+    
+    .page-subtitle {
+        color: #cffafe;
+        font-size: 0.9rem;
+        margin: 0;
+        font-weight: 500;
+    }
+    
+    .header-actions .btn-create {
+        background: white;
+        color: #0891b2;
+        border: none;
+        padding: 0.75rem 1.5rem;
+        border-radius: 0.5rem;
+        font-weight: 700;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        transition: all 0.2s ease;
+        text-decoration: none;
+    }
+    
+    .header-actions .btn-create:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(255, 255, 255, 0.3);
+        color: #0891b2;
+    }
+    
+    .problem-list-container {
+        background: white;
+        border-radius: 0.75rem;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        overflow: hidden;
+    }
+    
+    .problem-list-item {
+        display: flex;
+        align-items: center;
+        gap: 1.5rem;
+        padding: 1.25rem 1.5rem;
+        border-bottom: 1px solid #e2e8f0;
+        transition: all 0.3s ease;
+        background: white;
+    }
+    
+    .problem-list-item:last-child {
+        border-bottom: none;
+    }
+    
+    .problem-list-item:hover {
+        background: #f8fafc;
+        transform: translateX(4px);
+    }
+    
+    .problem-icon-wrapper {
+        width: 60px;
+        height: 60px;
+        background: linear-gradient(135deg, #ecfeff 0%, #cffafe 100%);
+        border-radius: 0.75rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        border: 2px solid #a5f3fc;
+    }
+    
+    .problem-icon-wrapper i {
+        font-size: 1.5rem;
+        color: #0891b2;
+    }
+    
+    .problem-main-info {
+        flex: 1;
+        min-width: 0;
+    }
+    
+    .problem-title {
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: #1e293b;
+        margin: 0 0 0.5rem 0;
+    }
+    
+    .problem-meta {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        flex-wrap: wrap;
+    }
+    
+    .difficulty-badge {
+        font-size: 0.7rem;
+        padding: 0.25rem 0.75rem;
+        border-radius: 0.35rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.3px;
+    }
+    
+    .difficulty-easy {
+        background: #d1fae5;
+        color: #065f46;
+    }
+    
+    .difficulty-medium {
+        background: #fef3c7;
+        color: #92400e;
+    }
+    
+    .difficulty-hard {
+        background: #fee2e2;
+        color: #991b1b;
+    }
+    
+    .topic-badge {
+        font-size: 0.7rem;
+        padding: 0.25rem 0.75rem;
+        background: linear-gradient(135deg, #ecfeff 0%, #cffafe 100%);
+        color: #0891b2;
+        border-radius: 0.35rem;
+        font-weight: 600;
+    }
+    
+    .meta-item {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.35rem;
+        color: #64748b;
+        font-size: 0.85rem;
+    }
+    
+    .meta-item i {
+        color: #94a3b8;
+    }
+    
+    .problem-stats {
+        display: flex;
+        gap: 2rem;
+        align-items: center;
+    }
+    
+    .stat-box {
+        text-align: center;
+        min-width: 70px;
+    }
+    
+    .stat-number {
+        font-size: 1.5rem;
+        font-weight: 800;
+        color: #0891b2;
+        line-height: 1;
+    }
+    
+    .stat-label {
+        font-size: 0.7rem;
+        color: #64748b;
+        text-transform: uppercase;
+        letter-spacing: 0.3px;
+        margin-top: 0.25rem;
+        font-weight: 600;
+    }
+    
+    .problem-actions {
+        display: flex;
+        gap: 0.5rem;
+        flex-shrink: 0;
+    }
+    
+    .action-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.625rem 1.25rem;
+        border-radius: 0.5rem;
+        font-weight: 600;
+        font-size: 0.875rem;
+        text-decoration: none;
+        transition: all 0.2s ease;
+        border: none;
+        cursor: pointer;
+    }
+    
+    .action-btn-primary {
+        background: linear-gradient(135deg, #06B6D4 0%, #0891b2 100%);
+        color: white;
+        box-shadow: 0 2px 4px rgba(6, 182, 212, 0.3);
+    }
+    
+    .action-btn-primary:hover {
+        filter: brightness(1.1);
+        box-shadow: 0 4px 8px rgba(6, 182, 212, 0.4);
+        transform: translateY(-2px);
+        color: white;
+    }
+    
+    .action-btn-danger {
+        background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+        color: white;
+        box-shadow: 0 2px 4px rgba(239, 68, 68, 0.3);
+    }
+    
+    .action-btn-danger:hover {
+        filter: brightness(1.1);
+        box-shadow: 0 4px 8px rgba(239, 68, 68, 0.4);
+        transform: translateY(-2px);
+        color: white;
+    }
+    
+    .footer-actions {
+        margin-top: 2rem;
+        text-align: center;
+    }
+    
+    .footer-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.75rem;
+        padding: 1rem 2rem;
+        background: white;
+        color: #0891b2;
+        border: 2px solid #06B6D4;
+        border-radius: 0.5rem;
+        font-weight: 600;
+        font-size: 1rem;
+        text-decoration: none;
+        transition: all 0.2s ease;
+    }
+    
+    .footer-btn:hover {
+        background: #ecfeff;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(6, 182, 212, 0.2);
+        color: #0891b2;
+    }
+    
+    .empty-state {
+        text-align: center;
+        padding: 4rem 2rem;
+        background: white;
+        border-radius: 0.75rem;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    }
+    
+    .empty-state i {
+        font-size: 4rem;
+        color: #cbd5e1;
+        margin-bottom: 1rem;
+    }
+    
+    .empty-state h3 {
+        color: #475569;
+        margin-bottom: 0.5rem;
+    }
+    
+    .empty-state p {
+        color: #94a3b8;
+        margin-bottom: 2rem;
+    }
+</style>
+
+<div class="container-fluid px-4">
+    <div class="page-header">
+        <div class="header-content">
+            <h1>
+                <i class="bi bi-code-slash"></i>
+                My Coding Problems
+            </h1>
+            <p class="page-subtitle">Manage and create coding challenges for your students</p>
+        </div>
+        <div class="header-actions">
+            <a href="{% url 'teacher_create_problem' %}" class="btn-create">
+                <i class="bi bi-plus-circle"></i> Create New Problem
+            </a>
+        </div>
+    </div>
+
+    {% if not problems %}
+    <div class="empty-state">
+        <i class="bi bi-inbox"></i>
+        <h3>No Problems Yet</h3>
+        <p>Create your first coding problem to get started!</p>
+        <a href="{% url 'teacher_create_problem' %}" class="action-btn action-btn-primary">
+            <i class="bi bi-plus-circle"></i> Create Problem
+        </a>
+    </div>
+    {% else %}
+    <div class="problem-list-container">
+        {% for problem in problems %}
+        <div class="problem-list-item">
+            <div class="problem-icon-wrapper">
+                <i class="bi bi-code-square"></i>
+            </div>
+            
+            <div class="problem-main-info">
+                <h5 class="problem-title">{{ problem.title }}</h5>
+                <div class="problem-meta">
+                    <span class="difficulty-badge difficulty-{{ problem.difficulty }}">
+                        <i class="bi bi-{% if problem.difficulty == 'easy' %}check-circle{% elif problem.difficulty == 'medium' %}dash-circle{% else %}exclamation-circle{% endif %}"></i>
+                        {{ problem.get_difficulty_display }}
+                    </span>
+                    <span class="topic-badge">
+                        <i class="bi bi-tag"></i> {{ problem.topic }}
+                    </span>
+                    <span class="meta-item">
+                        <i class="bi bi-calendar3"></i> {{ problem.created_at|date:"M d, Y" }}
+                    </span>
+                </div>
+            </div>
+            
+            <div class="problem-stats">
+                <div class="stat-box">
+                    <div class="stat-number">{{ problem.test_cases.count }}</div>
+                    <div class="stat-label">Test Cases</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-number">{{ problem.assignments.count }}</div>
+                    <div class="stat-label">Assignments</div>
+                </div>
+            </div>
+            
+            <div class="problem-actions">
+                <a href="{% url 'teacher_assign_problem' problem.id %}" class="action-btn action-btn-primary" title="Assign to Students">
+                    <i class="bi bi-send"></i> Assign
+                </a>
+                <button onclick="deleteProblem({{ problem.id }})" class="action-btn action-btn-danger" title="Delete Problem">
+                    <i class="bi bi-trash"></i>
+                </button>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <div class="footer-actions">
+        <a href="{% url 'teacher_coding_assignments' %}" class="footer-btn">
+            <i class="bi bi-list-check"></i> View All Assignments
+        </a>
+    </div>
+</div>
+
+<script>
+async function deleteProblem(problemId) {
+    if (!confirm('Delete this problem? This cannot be undone.')) {
+        return;
+    }
+
+    try {
+        const response = await fetch(`/teachers/coding/problem/${problemId}/delete/`, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': '{{ csrf_token }}'
+            }
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+            alert('Problem deleted');
+            location.reload();
+        } else {
+            alert('Error: ' + data.error);
+        }
+    } catch (error) {
+        alert('Network error: ' + error.message);
+    }
+}
+</script>
+{% endblock %}

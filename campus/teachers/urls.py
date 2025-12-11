@@ -1,9 +1,23 @@
 from django.urls import path
 from . import views
 from . import reports_views
+from . import coding_views
 
 urlpatterns = [
     path('dashboard/', views.teacher_dashboard, name='teacher_dashboard'),
+    
+    # Code Arena - Teacher
+    path('coding/problems/', coding_views.problems_list, name='teacher_coding_problems'),
+    path('coding/create/', coding_views.create_problem_form, name='teacher_create_problem'),
+    path('coding/generate/', coding_views.generate_problem_ai, name='teacher_generate_problem'),
+    path('coding/save/', coding_views.save_problem, name='teacher_save_problem'),
+    path('coding/assign/<int:problem_id>/', coding_views.assign_problem, name='teacher_assign_problem'),
+    path('coding/assignment/create/', coding_views.create_assignment, name='teacher_create_assignment'),
+    path('coding/assignments/', coding_views.assignments_list, name='teacher_coding_assignments'),
+    path('coding/assignment/<int:assignment_id>/submissions/', coding_views.assignment_submissions, name='teacher_assignment_submissions'),
+    path('coding/problem/<int:problem_id>/delete/', coding_views.delete_problem, name='teacher_delete_problem'),
+    path('coding/assignment/<int:assignment_id>/toggle/', coding_views.toggle_assignment, name='teacher_toggle_assignment'),
+    
     path('subject/create/', views.create_subject, name='create_subject'),
     path('subject/<int:subject_id>/', views.subject_detail, name='teacher_subject_detail'),
     path('subject/<int:subject_id>/upload/', views.upload_pdf, name='upload_pdf'),

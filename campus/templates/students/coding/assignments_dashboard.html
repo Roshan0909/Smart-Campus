@@ -1,0 +1,506 @@
+{% extends 'students/base_student.html' %}
+{% block title %}Code Arena - Assignments{% endblock %}
+
+{% block student_content %}
+<style>
+    .page-header {
+        background: linear-gradient(135deg, #164e63 0%, #0891b2 100%);
+        padding: 2rem;
+        border-radius: 0.75rem;
+        margin-bottom: 2rem;
+        box-shadow: 0 4px 12px rgba(6, 182, 212, 0.15);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    
+    .header-content h1 {
+        color: white;
+        font-size: 1.75rem;
+        font-weight: 800;
+        margin: 0 0 0.5rem 0;
+        display: flex;
+        align-items: center;
+        gap: 0.6rem;
+    }
+    
+    .header-content h1 i {
+        font-size: 1.5rem;
+        color: #67e8f9;
+    }
+    
+    .page-subtitle {
+        color: #cffafe;
+        font-size: 0.9rem;
+        margin: 0;
+        font-weight: 500;
+    }
+    
+    .header-stats {
+        display: flex;
+        gap: 1rem;
+    }
+    
+    .stat-card {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        padding: 1rem 1.25rem;
+        background: rgba(255, 255, 255, 0.15);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        border-radius: 0.5rem;
+        min-width: 110px;
+    }
+    
+    .stat-icon {
+        width: 40px;
+        height: 40px;
+        background: rgba(255, 255, 255, 0.2);
+        border-radius: 0.5rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 1.2rem;
+        flex-shrink: 0;
+    }
+    
+    .stat-number {
+        font-size: 1.4rem;
+        font-weight: 800;
+        color: white;
+        line-height: 1;
+    }
+    
+    .stat-text {
+        font-size: 0.7rem;
+        color: #cffafe;
+        text-transform: uppercase;
+        letter-spacing: 0.3px;
+        margin-top: 0.2rem;
+        font-weight: 600;
+    }
+    
+    .assignment-list-container {
+        background: white;
+        border-radius: 0.75rem;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        overflow: hidden;
+    }
+    
+    .assignment-list-item {
+        display: flex;
+        align-items: center;
+        gap: 1.5rem;
+        padding: 1.25rem 1.5rem;
+        border-bottom: 1px solid #e2e8f0;
+        transition: all 0.3s ease;
+        background: white;
+    }
+    
+    .assignment-list-item:last-child {
+        border-bottom: none;
+    }
+    
+    .assignment-list-item:hover {
+        background: #f8fafc;
+        transform: translateX(4px);
+    }
+    
+    .assignment-icon-wrapper {
+        width: 60px;
+        height: 60px;
+        background: linear-gradient(135deg, #ecfeff 0%, #cffafe 100%);
+        border-radius: 0.75rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+        flex-shrink: 0;
+        border: 2px solid #a5f3fc;
+    }
+    
+    .assignment-icon-wrapper i {
+        font-size: 1.5rem;
+        color: #0891b2;
+    }
+    
+    .assignment-icon-wrapper.solved {
+        background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
+        border-color: #6ee7b7;
+    }
+    
+    .assignment-icon-wrapper.solved i {
+        color: #059669;
+    }
+    
+    .completion-badge {
+        position: absolute;
+        top: -6px;
+        right: -6px;
+        width: 24px;
+        height: 24px;
+        background: #10b981;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 0.75rem;
+        border: 2px solid white;
+    }
+    
+    .assignment-main-info {
+        flex: 1;
+        min-width: 0;
+    }
+    
+    .assignment-title {
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: #1e293b;
+        margin: 0 0 0.5rem 0;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+    
+    .assignment-meta {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        margin-bottom: 0.5rem;
+    }
+    
+    .difficulty-badge {
+        font-size: 0.7rem;
+        padding: 0.25rem 0.75rem;
+        border-radius: 0.35rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.3px;
+    }
+    
+    .difficulty-easy {
+        background: #d1fae5;
+        color: #065f46;
+    }
+    
+    .difficulty-medium {
+        background: #fef3c7;
+        color: #92400e;
+    }
+    
+    .difficulty-hard {
+        background: #fee2e2;
+        color: #991b1b;
+    }
+    
+    .topic-badge {
+        font-size: 0.7rem;
+        padding: 0.25rem 0.75rem;
+        background: linear-gradient(135deg, #ecfeff 0%, #cffafe 100%);
+        color: #0891b2;
+        border-radius: 0.35rem;
+        font-weight: 600;
+    }
+    
+    .assignment-stats {
+        display: flex;
+        align-items: center;
+        gap: 1.5rem;
+    }
+    
+    .stat-item {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        color: #64748b;
+        font-size: 0.85rem;
+    }
+    
+    .stat-item i {
+        font-size: 1rem;
+        color: #94a3b8;
+    }
+    
+    .stat-item.deadline-warning {
+        color: #dc2626;
+        font-weight: 600;
+    }
+    
+    .stat-item.deadline-warning i {
+        color: #dc2626;
+    }
+    
+    .score-display {
+        min-width: 120px;
+        text-align: center;
+    }
+    
+    .score-circle {
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #ecfeff 0%, #cffafe 100%);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 0.25rem;
+        border: 3px solid #06B6D4;
+    }
+    
+    .score-value {
+        font-size: 1.2rem;
+        font-weight: 800;
+        color: #0891b2;
+    }
+    
+    .score-label {
+        font-size: 0.7rem;
+        color: #64748b;
+        text-transform: uppercase;
+        letter-spacing: 0.3px;
+        font-weight: 600;
+    }
+    
+    .assignment-actions {
+        display: flex;
+        gap: 0.5rem;
+    }
+    
+    .action-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.625rem 1.25rem;
+        border-radius: 0.5rem;
+        font-weight: 600;
+        font-size: 0.875rem;
+        text-decoration: none;
+        transition: all 0.2s ease;
+        border: none;
+        cursor: pointer;
+    }
+    
+    .action-btn-primary {
+        background: linear-gradient(135deg, #06B6D4 0%, #0891b2 100%);
+        color: white;
+        box-shadow: 0 2px 4px rgba(6, 182, 212, 0.3);
+    }
+    
+    .action-btn-primary:hover {
+        filter: brightness(1.1);
+        box-shadow: 0 4px 8px rgba(6, 182, 212, 0.4);
+        transform: translateY(-2px);
+        color: white;
+    }
+    
+    .action-btn-outline {
+        background: white;
+        color: #0891b2;
+        border: 2px solid #06B6D4;
+    }
+    
+    .action-btn-outline:hover {
+        background: #ecfeff;
+        color: #0891b2;
+    }
+    
+    .status-badge {
+        font-size: 0.75rem;
+        padding: 0.375rem 0.75rem;
+        border-radius: 0.35rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.3px;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.35rem;
+    }
+    
+    .status-solved {
+        background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
+        color: #065f46;
+        border: 1px solid #6ee7b7;
+    }
+    
+    .status-progress {
+        background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+        color: #92400e;
+        border: 1px solid #fcd34d;
+    }
+    
+    .status-new {
+        background: linear-gradient(135deg, #e0e7ff 0%, #c7d2fe 100%);
+        color: #3730a3;
+        border: 1px solid #a5b4fc;
+    }
+    
+    .footer-actions {
+        margin-top: 2rem;
+        text-align: center;
+    }
+    
+    .footer-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.75rem;
+        padding: 1rem 2rem;
+        background: white;
+        color: #0891b2;
+        border: 2px solid #06B6D4;
+        border-radius: 0.5rem;
+        font-weight: 600;
+        font-size: 1rem;
+        text-decoration: none;
+        transition: all 0.2s ease;
+    }
+    
+    .footer-btn:hover {
+        background: #ecfeff;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(6, 182, 212, 0.2);
+        color: #0891b2;
+    }
+    
+    .empty-state {
+        text-align: center;
+        padding: 4rem 2rem;
+        background: white;
+        border-radius: 0.75rem;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    }
+    
+    .empty-state i {
+        font-size: 4rem;
+        color: #cbd5e1;
+        margin-bottom: 1rem;
+    }
+    
+    .empty-state h3 {
+        color: #475569;
+        margin-bottom: 0.5rem;
+    }
+    
+    .empty-state p {
+        color: #94a3b8;
+    }
+</style>
+
+<div class="container-fluid px-4">
+    <div class="page-header">
+        <div class="header-content">
+            <h1>
+                <i class="bi bi-code-slash"></i>
+                Code Arena
+            </h1>
+            <p class="page-subtitle">Practice coding problems and improve your programming skills</p>
+        </div>
+        <div class="header-stats">
+            <div class="stat-card">
+                <div class="stat-icon">
+                    <i class="bi bi-check-circle"></i>
+                </div>
+                <div>
+                    <div class="stat-number">{{ solved }}</div>
+                    <div class="stat-text">Solved</div>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">
+                    <i class="bi bi-clock-history"></i>
+                </div>
+                <div>
+                    <div class="stat-number">{{ attempted }}</div>
+                    <div class="stat-text">Attempted</div>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">
+                    <i class="bi bi-list-task"></i>
+                </div>
+                <div>
+                    <div class="stat-number">{{ total }}</div>
+                    <div class="stat-text">Total</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {% if not assignments_data %}
+    <div class="empty-state">
+        <i class="bi bi-inbox"></i>
+        <h3>No Assignments Yet</h3>
+        <p>Check back later for new coding challenges!</p>
+    </div>
+    {% else %}
+    <div class="assignment-list-container">
+        {% for item in assignments_data %}
+        <div class="assignment-list-item">
+            <div class="assignment-icon-wrapper {% if item.solved %}solved{% endif %}">
+                <i class="bi bi-code-square"></i>
+                {% if item.solved %}
+                <div class="completion-badge">
+                    <i class="bi bi-check"></i>
+                </div>
+                {% endif %}
+            </div>
+            
+            <div class="assignment-main-info">
+                <h5 class="assignment-title">
+                    {{ item.assignment.problem.title }}
+                    <span class="status-badge {% if item.solved %}status-solved{% elif item.attempted %}status-progress{% else %}status-new{% endif %}">
+                        <i class="bi bi-{% if item.solved %}check-circle{% elif item.attempted %}clock-history{% else %}circle{% endif %}"></i>
+                        {% if item.solved %}Solved{% elif item.attempted %}In Progress{% else %}New{% endif %}
+                    </span>
+                </h5>
+                
+                <div class="assignment-meta">
+                    <span class="difficulty-badge difficulty-{{ item.assignment.problem.difficulty }}">
+                        <i class="bi bi-{% if item.assignment.problem.difficulty == 'easy' %}check-circle{% elif item.assignment.problem.difficulty == 'medium' %}dash-circle{% else %}exclamation-circle{% endif %}"></i>
+                        {{ item.assignment.problem.get_difficulty_display }}
+                    </span>
+                    <span class="topic-badge">
+                        <i class="bi bi-tag"></i> {{ item.assignment.problem.topic }}
+                    </span>
+                </div>
+                
+                <div class="assignment-stats">
+                    <div class="stat-item {% if item.overdue %}deadline-warning{% endif %}">
+                        <i class="bi bi-{% if item.overdue %}exclamation-triangle{% else %}calendar-check{% endif %}"></i>
+                        <span>{{ item.assignment.deadline|date:"M d, Y H:i" }}</span>
+                        {% if item.overdue %}<strong>(Overdue)</strong>{% endif %}
+                    </div>
+                </div>
+            </div>
+            
+            {% if item.best_score > 0 %}
+            <div class="score-display">
+                <div class="score-circle">
+                    <div class="score-value">{{ item.best_score }}%</div>
+                </div>
+                <div class="score-label">Best Score</div>
+            </div>
+            {% endif %}
+            
+            <div class="assignment-actions">
+                <a href="{% url 'student_solve_problem' item.assignment.id %}" class="action-btn action-btn-primary">
+                    <i class="bi bi-{% if item.solved %}eye{% else %}play-fill{% endif %}"></i>
+                    <span>{% if item.solved %}View{% else %}Solve{% endif %}</span>
+                </a>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <div class="footer-actions">
+        <a href="{% url 'student_my_submissions' %}" class="footer-btn">
+            <i class="bi bi-clock-history"></i>
+            View Submission History
+        </a>
+    </div>
+</div>
+{% endblock %}

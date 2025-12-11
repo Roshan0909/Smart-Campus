@@ -141,6 +141,13 @@ LOGIN_URL = 'login'
 LOGIN_REDIRECT_URL = 'dashboard'
 LOGOUT_REDIRECT_URL = 'login'
 
+# API Keys from environment
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
+GEMINI_API_KEY = os.getenv('API_KEY')  # Google Gemini API key
+
 # Logging configuration
 LOGGING = {
     'version': 1,

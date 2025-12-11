@@ -1,0 +1,308 @@
+{% extends 'students/base_student.html' %}
+
+{% block title %}Code Arena - Smart Campus{% endblock %}
+
+{% block student_content %}
+<style>
+    .code-arena-header {
+        background: linear-gradient(135deg, #1E293B 0%, #0F172A 100%);
+        color: white;
+        padding: 2.5rem;
+        border-radius: 1rem;
+        margin-bottom: 2rem;
+        box-shadow: 0 8px 24px rgba(6, 182, 212, 0.15);
+        border: 1px solid rgba(6, 182, 212, 0.2);
+    }
+    
+    .code-arena-header h1 {
+        font-size: 2.5rem;
+        font-weight: 800;
+        margin-bottom: 0.5rem;
+        background: linear-gradient(135deg, #06B6D4 0%, #0891B2 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+    
+    .stats-card {
+        background: linear-gradient(135deg, #06B6D4 0%, #0891B2 100%);
+        color: white;
+        padding: 1.5rem;
+        border-radius: 1rem;
+        text-align: center;
+        box-shadow: 0 4px 12px rgba(6, 182, 212, 0.3);
+        transition: transform 0.3s ease;
+    }
+    
+    .stats-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 8px 20px rgba(6, 182, 212, 0.4);
+    }
+    
+    .stats-number {
+        font-size: 2.5rem;
+        font-weight: 800;
+        margin-bottom: 0.25rem;
+    }
+    
+    .stats-label {
+        font-size: 0.9rem;
+        opacity: 0.9;
+        font-weight: 500;
+    }
+    
+    .problem-card {
+        background: white;
+        border-radius: 1rem;
+        padding: 1.5rem;
+        margin-bottom: 1rem;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        transition: all 0.3s ease;
+        border-left: 4px solid #06B6D4;
+    }
+    
+    .problem-card:hover {
+        transform: translateX(8px);
+        box-shadow: 0 4px 16px rgba(6, 182, 212, 0.2);
+    }
+    
+    .difficulty-badge {
+        display: inline-block;
+        padding: 0.35rem 0.85rem;
+        border-radius: 2rem;
+        font-size: 0.8rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    
+    .difficulty-easy {
+        background: linear-gradient(135deg, #10B981 0%, #059669 100%);
+        color: white;
+    }
+    
+    .difficulty-medium {
+        background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%);
+        color: white;
+    }
+    
+    .difficulty-hard {
+        background: linear-gradient(135deg, #EF4444 0%, #DC2626 100%);
+        color: white;
+    }
+    
+    .status-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.4rem 0.9rem;
+        border-radius: 2rem;
+        font-size: 0.85rem;
+        font-weight: 600;
+    }
+    
+    .status-solved {
+        background: rgba(16, 185, 129, 0.1);
+        color: #059669;
+        border: 1px solid rgba(16, 185, 129, 0.3);
+    }
+    
+    .status-attempted {
+        background: rgba(245, 158, 11, 0.1);
+        color: #D97706;
+        border: 1px solid rgba(245, 158, 11, 0.3);
+    }
+    
+    .status-new {
+        background: rgba(6, 182, 212, 0.1);
+        color: #0891B2;
+        border: 1px solid rgba(6, 182, 212, 0.3);
+    }
+    
+    .filter-pills {
+        display: flex;
+        gap: 0.75rem;
+        flex-wrap: wrap;
+        margin-bottom: 1.5rem;
+    }
+    
+    .filter-pill {
+        padding: 0.6rem 1.2rem;
+        border-radius: 2rem;
+        border: 2px solid #e2e8f0;
+        background: white;
+        color: #64748b;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        text-decoration: none;
+    }
+    
+    .filter-pill:hover,
+    .filter-pill.active {
+        background: linear-gradient(135deg, #06B6D4 0%, #0891B2 100%);
+        color: white;
+        border-color: #06B6D4;
+    }
+    
+    .solve-btn {
+        background: linear-gradient(135deg, #06B6D4 0%, #0891B2 100%);
+        color: white;
+        padding: 0.6rem 1.5rem;
+        border-radius: 0.75rem;
+        border: none;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        display: inline-block;
+    }
+    
+    .solve-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 16px rgba(6, 182, 212, 0.4);
+        color: white;
+    }
+    
+    .empty-state {
+        text-align: center;
+        padding: 4rem 2rem;
+        color: #64748b;
+    }
+    
+    .empty-state i {
+        font-size: 4rem;
+        margin-bottom: 1rem;
+        opacity: 0.5;
+    }
+</style>
+
+<div class="container-fluid py-4">
+    <!-- Header -->
+    <div class="code-arena-header">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <h1><i class="bi bi-code-slash me-3"></i>Code Arena</h1>
+                <p class="mb-0" style="color: #94a3b8; font-size: 1.1rem;">
+                    Solve AI-generated coding problems and level up your skills
+                </p>
+            </div>
+            <div>
+                <a href="{% url 'my_submissions' %}" class="btn btn-light btn-lg">
+                    <i class="bi bi-clock-history me-2"></i>My Submissions
+                </a>
+                <a href="{% url 'coding_leaderboard' %}" class="btn btn-outline-light btn-lg ms-2">
+                    <i class="bi bi-trophy me-2"></i>Leaderboard
+                </a>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Statistics Cards -->
+    <div class="row mb-4">
+        <div class="col-md-4">
+            <div class="stats-card">
+                <div class="stats-number">{{ total_assignments }}</div>
+                <div class="stats-label">Total Assignments</div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="stats-card" style="background: linear-gradient(135deg, #10B981 0%, #059669 100%);">
+                <div class="stats-number">{{ solved_count }}</div>
+                <div class="stats-label">Completed</div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="stats-card" style="background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%);">
+                <div class="stats-number">{{ pending_count }}</div>
+                <div class="stats-label">Pending</div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Filters -->
+    <div class="filter-pills">
+        <a href="{% url 'coding_problems_dashboard' %}" class="filter-pill {% if not status_filter %}active{% endif %}">
+            <i class="bi bi-grid me-2"></i>All Assignments
+        </a>
+        <a href="?status=pending" class="filter-pill {% if status_filter == 'pending' %}active{% endif %}">
+            🟡 Pending
+        </a>
+        <a href="?status=completed" class="filter-pill {% if status_filter == 'completed' %}active{% endif %}">
+            ✅ Completed
+        </a>
+        <a href="?status=overdue" class="filter-pill {% if status_filter == 'overdue' %}active{% endif %}">
+            🔴 Overdue
+        </a>
+    </div>
+    
+    <!-- Assignments List -->
+    <div class="card border-0 shadow-sm" style="border-radius: 1rem;">
+        <div class="card-body p-4">
+            {% if assignments_data %}
+                {% for item in assignments_data %}
+                <div class="problem-card">
+                    <div class="row align-items-center">
+                        <div class="col-md-6">
+                            <h5 class="mb-2" style="color: #1e293b; font-weight: 700;">
+                                {{ item.assignment.title }}
+                            </h5>
+                            <p class="text-muted mb-2" style="font-size: 0.9rem;">
+                                {{ item.assignment.problem.description|truncatewords:20 }}
+                            </p>
+                            <div class="mb-2">
+                                <span class="badge bg-secondary me-2">
+                                    <i class="bi bi-tag-fill me-1"></i>{{ item.assignment.problem.topic }}
+                                </span>
+                                <span class="badge bg-info text-dark">
+                                    <i class="bi bi-book me-1"></i>{{ item.assignment.subject.name }}
+                                </span>
+                                <span class="difficulty-badge difficulty-{{ item.assignment.problem.difficulty }} ms-2">
+                                    {% if item.assignment.problem.difficulty == 'easy' %}🟢{% elif item.assignment.problem.difficulty == 'medium' %}🟡{% else %}🔴{% endif %}
+                                    {{ item.assignment.problem.get_difficulty_display }}
+                                </span>
+                            </div>
+                            <small class="text-muted">
+                                <i class="bi bi-calendar me-1"></i>
+                                {% if item.overdue %}
+                                    <span class="text-danger fw-bold">Overdue!</span>
+                                {% else %}
+                                    Deadline: {{ item.assignment.deadline|date:"M d, Y - H:i" }}
+                                {% endif %}
+                            </small>
+                        </div>
+                        
+                        <div class="col-md-3 text-center">
+                            {% if item.solved %}
+                                <span class="status-badge status-solved">
+                                    <i class="bi bi-check-circle-fill"></i>Completed
+                                </span>
+                            {% elif item.attempted %}
+                                <span class="status-badge status-attempted">
+                                    <i class="bi bi-exclamation-circle-fill"></i>In Progress
+                                </span>
+                            {% else %}
+                                <span class="status-badge status-new">
+                                    <i class="bi bi-stars"></i>Not Started
+                                </span>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="col-md-3 text-end">
+                            <a href="{% url 'solve_problem' item.assignment.id %}" class="solve-btn">
+                                <i class="bi bi-play-circle me-2"></i>{% if item.attempted %}Continue{% else %}Start{% endif %}
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            {% else %}
+                <div class="empty-state">
+                    <i class="bi bi-inbox"></i>
+                    <h4>No assignments yet</h4>
+                    <p>Your teacher hasn't assigned any coding problems. Check back later!</p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

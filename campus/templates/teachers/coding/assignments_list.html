@@ -1,0 +1,293 @@
+{% extends 'teachers/base_teacher.html' %}
+{% block title %}Assignments - Code Arena{% endblock %}
+
+{% block teacher_content %}
+<style>
+    .page-header {
+        background: linear-gradient(135deg, #164e63 0%, #0891b2 100%);
+        padding: 2rem;
+        border-radius: 0.75rem;
+        margin-bottom: 2rem;
+        box-shadow: 0 4px 12px rgba(6, 182, 212, 0.15);
+    }
+    
+    .header-content h1 {
+        color: white;
+        font-size: 1.75rem;
+        font-weight: 800;
+        margin: 0 0 0.5rem 0;
+        display: flex;
+        align-items: center;
+        gap: 0.6rem;
+    }
+    
+    .header-content h1 i {
+        font-size: 1.5rem;
+        color: #67e8f9;
+    }
+    
+    .page-subtitle {
+        color: #cffafe;
+        font-size: 0.9rem;
+        margin: 0;
+        font-weight: 500;
+    }
+    
+    .assignment-list-container {
+        background: white;
+        border-radius: 0.75rem;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        overflow: hidden;
+    }
+    
+    .assignment-list-item {
+        display: flex;
+        align-items: center;
+        gap: 1.5rem;
+        padding: 1.25rem 1.5rem;
+        border-bottom: 1px solid #e2e8f0;
+        transition: all 0.3s ease;
+        background: white;
+    }
+    
+    .assignment-list-item:last-child {
+        border-bottom: none;
+    }
+    
+    .assignment-list-item:hover {
+        background: #f8fafc;
+        transform: translateX(4px);
+    }
+    
+    .assignment-icon-wrapper {
+        width: 60px;
+        height: 60px;
+        background: linear-gradient(135deg, #ecfeff 0%, #cffafe 100%);
+        border-radius: 0.75rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        border: 2px solid #a5f3fc;
+    }
+    
+    .assignment-icon-wrapper i {
+        font-size: 1.5rem;
+        color: #0891b2;
+    }
+    
+    .assignment-icon-wrapper.inactive {
+        background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
+        border-color: #cbd5e1;
+    }
+    
+    .assignment-icon-wrapper.inactive i {
+        color: #64748b;
+    }
+    
+    .assignment-main-info {
+        flex: 1;
+        min-width: 0;
+    }
+    
+    .assignment-title {
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: #1e293b;
+        margin: 0 0 0.5rem 0;
+    }
+    
+    .assignment-meta {
+        display: flex;
+        align-items: center;
+        gap: 1.5rem;
+        flex-wrap: wrap;
+    }
+    
+    .meta-item {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        color: #64748b;
+        font-size: 0.85rem;
+    }
+    
+    .meta-item i {
+        color: #94a3b8;
+    }
+    
+    .meta-item strong {
+        color: #334155;
+    }
+    
+    .assignment-stats {
+        display: flex;
+        gap: 2rem;
+        align-items: center;
+    }
+    
+    .stat-box {
+        text-align: center;
+        min-width: 70px;
+    }
+    
+    .stat-number {
+        font-size: 1.5rem;
+        font-weight: 800;
+        color: #0891b2;
+        line-height: 1;
+    }
+    
+    .stat-label {
+        font-size: 0.7rem;
+        color: #64748b;
+        text-transform: uppercase;
+        letter-spacing: 0.3px;
+        margin-top: 0.25rem;
+        font-weight: 600;
+    }
+    
+    .status-badge {
+        font-size: 0.75rem;
+        padding: 0.375rem 0.75rem;
+        border-radius: 0.35rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.3px;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.35rem;
+    }
+    
+    .status-active {
+        background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
+        color: #065f46;
+        border: 1px solid #6ee7b7;
+    }
+    
+    .status-inactive {
+        background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
+        color: #475569;
+        border: 1px solid #cbd5e1;
+    }
+    
+    .assignment-actions {
+        display: flex;
+        gap: 0.5rem;
+        flex-shrink: 0;
+    }
+    
+    .action-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.625rem 1.25rem;
+        border-radius: 0.5rem;
+        font-weight: 600;
+        font-size: 0.875rem;
+        text-decoration: none;
+        transition: all 0.2s ease;
+        border: none;
+        cursor: pointer;
+    }
+    
+    .action-btn-primary {
+        background: linear-gradient(135deg, #06B6D4 0%, #0891b2 100%);
+        color: white;
+        box-shadow: 0 2px 4px rgba(6, 182, 212, 0.3);
+    }
+    
+    .action-btn-primary:hover {
+        filter: brightness(1.1);
+        box-shadow: 0 4px 8px rgba(6, 182, 212, 0.4);
+        transform: translateY(-2px);
+        color: white;
+    }
+    
+    .empty-state {
+        text-align: center;
+        padding: 4rem 2rem;
+        background: white;
+        border-radius: 0.75rem;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    }
+    
+    .empty-state i {
+        font-size: 4rem;
+        color: #cbd5e1;
+        margin-bottom: 1rem;
+    }
+    
+    .empty-state h3 {
+        color: #475569;
+        margin-bottom: 0.5rem;
+    }
+    
+    .empty-state p {
+        color: #94a3b8;
+    }
+</style>
+
+<div class="container-fluid px-4">
+    <div class="page-header">
+        <div class="header-content">
+            <h1>
+                <i class="bi bi-list-check"></i>
+                My Assignments
+            </h1>
+            <p class="page-subtitle">Track and manage coding assignments for your students</p>
+        </div>
+    </div>
+
+    {% if not assignments %}
+    <div class="empty-state">
+        <i class="bi bi-inbox"></i>
+        <h3>No Assignments Yet</h3>
+        <p>Create a problem and assign it to students to get started!</p>
+    </div>
+    {% else %}
+    <div class="assignment-list-container">
+        {% for assignment in assignments %}
+        <div class="assignment-list-item">
+            <div class="assignment-icon-wrapper {% if not assignment.is_active %}inactive{% endif %}">
+                <i class="bi bi-file-earmark-check"></i>
+            </div>
+            
+            <div class="assignment-main-info">
+                <h5 class="assignment-title">
+                    {{ assignment.title }}
+                    <span class="status-badge {% if assignment.is_active %}status-active{% else %}status-inactive{% endif %}">
+                        <i class="bi bi-{% if assignment.is_active %}check-circle{% else %}x-circle{% endif %}"></i>
+                        {% if assignment.is_active %}Active{% else %}Inactive{% endif %}
+                    </span>
+                </h5>
+                <div class="assignment-meta">
+                    <span class="meta-item">
+                        <i class="bi bi-code-square"></i>
+                        <strong>{{ assignment.problem.title }}</strong>
+                    </span>
+                    <span class="meta-item">
+                        <i class="bi bi-calendar-check"></i>
+                        Deadline: {{ assignment.deadline|date:"M d, Y H:i" }}
+                    </span>
+                </div>
+            </div>
+            
+            <div class="assignment-stats">
+                <div class="stat-box">
+                    <div class="stat-number">{{ assignment.submissions.count }}</div>
+                    <div class="stat-label">Submissions</div>
+                </div>
+            </div>
+            
+            <div class="assignment-actions">
+                <a href="{% url 'teacher_assignment_submissions' assignment.id %}" class="action-btn action-btn-primary">
+                    <i class="bi bi-eye"></i> View
+                </a>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

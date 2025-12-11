@@ -1,0 +1,47 @@
+{% extends 'students/base_student.html' %}
+{% block title %}Submission Detail{% endblock %}
+
+{% block student_content %}
+<div class="container py-4">
+    <a href="{% url 'student_my_submissions' %}" class="btn btn-sm btn-outline-secondary mb-3">
+        <i class="bi bi-arrow-left"></i> Back
+    </a>
+
+    <div class="card shadow-sm">
+        <div class="card-header bg-primary text-white">
+            <h4 class="mb-0">Submission Details</h4>
+        </div>
+        <div class="card-body">
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <strong>Problem:</strong> {{ submission.problem.title }}
+                </div>
+                <div class="col-md-6">
+                    <strong>Score:</strong> {{ submission.score }}/100
+                </div>
+            </div>
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <strong>Status:</strong> 
+                    <span class="badge {% if submission.status == 'accepted' %}bg-success{% else %}bg-danger{% endif %}">
+                        {{ submission.get_status_display }}
+                    </span>
+                </div>
+                <div class="col-md-6">
+                    <strong>Test Cases:</strong> {{ submission.test_cases_passed }}/{{ submission.test_cases_total }}
+                </div>
+            </div>
+            
+            <h5 class="mt-4">Your Code:</h5>
+            <pre style="background:#1e293b;color:#e2e8f0;padding:1rem;border-radius:0.5rem;">{{ submission.source_code }}</pre>
+            
+            {% if submission.friendly_hint %}
+            <div class="alert alert-warning mt-3">
+                <h6><i class="bi bi-lightbulb"></i> Hint:</h6>
+                {{ submission.friendly_hint }}
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

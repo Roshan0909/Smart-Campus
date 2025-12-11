@@ -1,0 +1,507 @@
+{% extends 'teachers/base_teacher.html' %}
+{% block title %}Create Problem - Code Arena{% endblock %}
+
+{% block teacher_content %}
+<style>
+    .page-header {
+        background: linear-gradient(135deg, #164e63 0%, #0891b2 100%);
+        padding: 2rem;
+        border-radius: 0.75rem;
+        margin-bottom: 2rem;
+        box-shadow: 0 4px 12px rgba(6, 182, 212, 0.15);
+    }
+    
+    .page-header h1 {
+        color: white;
+        font-size: 1.75rem;
+        font-weight: 800;
+        margin: 0 0 0.5rem 0;
+        display: flex;
+        align-items: center;
+        gap: 0.6rem;
+    }
+    
+    .page-header h1 i {
+        font-size: 1.5rem;
+        color: #67e8f9;
+    }
+    
+    .page-subtitle {
+        color: #cffafe;
+        font-size: 0.9rem;
+        margin: 0;
+        font-weight: 500;
+    }
+    
+    .form-container {
+        background: white;
+        border-radius: 0.75rem;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        padding: 2rem;
+    }
+    
+    .form-label {
+        font-weight: 700;
+        color: #1e293b;
+        margin-bottom: 0.5rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    
+    .form-label i {
+        color: #0891b2;
+        font-size: 1rem;
+    }
+    
+    .form-control, .form-select {
+        border: 2px solid #e2e8f0;
+        border-radius: 0.5rem;
+        padding: 0.75rem 1rem;
+        font-size: 0.95rem;
+        transition: all 0.2s ease;
+    }
+    
+    .form-control:focus, .form-select:focus {
+        border-color: #06B6D4;
+        box-shadow: 0 0 0 3px rgba(6, 182, 212, 0.1);
+    }
+    
+    .btn-generate {
+        background: linear-gradient(135deg, #06B6D4 0%, #0891b2 100%);
+        color: white;
+        border: none;
+        padding: 1rem 2rem;
+        font-size: 1.1rem;
+        font-weight: 700;
+        border-radius: 0.5rem;
+        transition: all 0.2s ease;
+        box-shadow: 0 4px 12px rgba(6, 182, 212, 0.2);
+    }
+    
+    .btn-generate:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 16px rgba(6, 182, 212, 0.3);
+        color: white;
+    }
+    
+    .btn-generate i {
+        font-size: 1.2rem;
+        margin-right: 0.5rem;
+    }
+    
+    .ai-hint {
+        color: #64748b;
+        font-size: 0.85rem;
+        text-align: center;
+        margin-top: 0.75rem;
+        font-style: italic;
+    }
+    
+    .btn-save {
+        background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        color: white;
+        border: none;
+        padding: 1rem 2rem;
+        font-size: 1.05rem;
+        font-weight: 700;
+        border-radius: 0.5rem;
+        transition: all 0.2s ease;
+        box-shadow: 0 4px 12px rgba(16, 185, 129, 0.2);
+    }
+    
+    .btn-save:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 16px rgba(16, 185, 129, 0.3);
+        color: white;
+    }
+    
+    .btn-regenerate {
+        background: white;
+        color: #0891b2;
+        border: 2px solid #06B6D4;
+        padding: 0.875rem 2rem;
+        font-size: 1rem;
+        font-weight: 600;
+        border-radius: 0.5rem;
+        transition: all 0.2s ease;
+    }
+    
+    .btn-regenerate:hover {
+        background: #ecfeff;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(6, 182, 212, 0.2);
+        color: #0891b2;
+    }
+    
+    .preview-card {
+        background: white;
+        border: 2px solid #e2e8f0;
+        border-radius: 0.75rem;
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+    }
+    
+    .preview-card h6 {
+        color: #0891b2;
+        font-weight: 800;
+        font-size: 0.85rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin-bottom: 1rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    
+    .preview-card h6 i {
+        font-size: 1rem;
+    }
+    
+    .preview-title {
+        font-size: 1.5rem;
+        font-weight: 800;
+        color: #1e293b;
+        margin: 0;
+    }
+    
+    .preview-description {
+        white-space: pre-wrap;
+        color: #475569;
+        line-height: 1.7;
+        font-size: 0.95rem;
+    }
+    
+    .test-case-item {
+        background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+        border: 1px solid #cbd5e1;
+        border-left: 4px solid #0891b2;
+        border-radius: 0.5rem;
+        padding: 1rem;
+        margin-bottom: 0.75rem;
+    }
+    
+    .test-case-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 0.75rem;
+    }
+    
+    .test-case-title {
+        font-weight: 700;
+        color: #1e293b;
+        font-size: 0.9rem;
+    }
+    
+    .visibility-badge {
+        font-size: 0.7rem;
+        padding: 0.25rem 0.75rem;
+        border-radius: 0.35rem;
+        font-weight: 700;
+        text-transform: uppercase;
+    }
+    
+    .visibility-badge.visible {
+        background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
+        color: #065f46;
+        border: 1px solid #6ee7b7;
+    }
+    
+    .visibility-badge.hidden {
+        background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
+        color: #991b1b;
+        border: 1px solid #fca5a5;
+    }
+    
+    .test-case-content {
+        font-size: 0.85rem;
+        color: #475569;
+    }
+    
+    .test-case-content strong {
+        color: #1e293b;
+        font-weight: 700;
+    }
+    
+    .code-preview {
+        background: #1e293b;
+        color: #e2e8f0;
+        padding: 1.5rem;
+        border-radius: 0.5rem;
+        font-family: 'Courier New', monospace;
+        font-size: 0.9rem;
+        line-height: 1.6;
+        overflow-x: auto;
+        border: 2px solid #334155;
+    }
+    
+    .loading-spinner {
+        text-align: center;
+        padding: 3rem 2rem;
+    }
+    
+    .loading-spinner .spinner-border {
+        width: 3rem;
+        height: 3rem;
+        color: #06B6D4;
+        border-width: 0.3rem;
+    }
+    
+    .loading-text {
+        margin-top: 1.5rem;
+        color: #64748b;
+        font-size: 0.95rem;
+        font-weight: 600;
+    }
+    
+    .loading-subtext {
+        color: #94a3b8;
+        font-size: 0.85rem;
+        margin-top: 0.5rem;
+    }
+</style>
+
+<div class="container-fluid px-4">
+    <div class="page-header">
+        <h1>
+            <i class="bi bi-stars"></i>
+            Create Coding Problem
+        </h1>
+        <p class="page-subtitle">Use AI to generate professional coding problems with test cases</p>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-10 mx-auto">
+            <div class="form-container">
+                <form id="problemForm">
+                    <div class="mb-4">
+                        <label class="form-label">
+                            <i class="bi bi-bookmark"></i>
+                            Topic *
+                        </label>
+                        <input type="text" id="topic" class="form-control" placeholder="e.g., arrays, recursion, sorting, dynamic programming" required>
+                    </div>
+
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <label class="form-label">
+                                <i class="bi bi-speedometer2"></i>
+                                Difficulty *
+                            </label>
+                            <select id="difficulty" class="form-select" required>
+                                <option value="easy">Easy</option>
+                                <option value="medium">Medium</option>
+                                <option value="hard">Hard</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">
+                                <i class="bi bi-code-slash"></i>
+                                Primary Language
+                            </label>
+                            <select id="language" class="form-select">
+                                <option value="python">Python</option>
+                                <option value="java">Java</option>
+                                <option value="cpp">C++</option>
+                                <option value="javascript">JavaScript</option>
+                                <option value="c">C</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="form-label">
+                            <i class="bi bi-book"></i>
+                            Subject (Optional)
+                        </label>
+                        <select id="subject_id" class="form-select">
+                            <option value="">-- None --</option>
+                            {% for subject in subjects %}
+                            <option value="{{ subject.id }}">{{ subject.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="d-grid gap-2">
+                        <button type="button" class="btn btn-generate" onclick="generateProblem()">
+                            <i class="bi bi-stars"></i> Generate with AI
+                        </button>
+                        <p class="ai-hint">
+                            <i class="bi bi-lightbulb"></i> AI will create problem description, test cases, and starter code
+                        </p>
+                    </div>
+                </form>
+
+                <!-- Preview Area -->
+                <div id="previewArea" style="display:none;">
+                    <hr class="my-4" style="border-top: 2px solid #e2e8f0;">
+                    
+                    <div class="text-center mb-4">
+                        <h5 style="color: #0891b2; font-weight: 800; font-size: 1.3rem;">
+                            <i class="bi bi-eye"></i> Generated Problem Preview
+                        </h5>
+                    </div>
+                    
+                    <div class="preview-card">
+                        <h6><i class="bi bi-tag"></i> Problem Title</h6>
+                        <p id="preview_title" class="preview-title"></p>
+                    </div>
+
+                    <div class="preview-card">
+                        <h6><i class="bi bi-file-text"></i> Description</h6>
+                        <p id="preview_description" class="preview-description"></p>
+                    </div>
+
+                    <div class="preview-card">
+                        <h6><i class="bi bi-check-square"></i> Test Cases</h6>
+                        <div id="preview_test_cases"></div>
+                    </div>
+
+                    <div class="preview-card">
+                        <h6><i class="bi bi-code-square"></i> Python Starter Code</h6>
+                        <pre id="preview_starter_code" class="code-preview"></pre>
+                    </div>
+
+                    <div class="d-grid gap-2">
+                        <button type="button" class="btn btn-save" onclick="saveProblem()">
+                            <i class="bi bi-check-circle"></i> Save Problem
+                        </button>
+                        <button type="button" class="btn btn-regenerate" onclick="regenerate()">
+                            <i class="bi bi-arrow-clockwise"></i> Regenerate Problem
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Loading spinner -->
+                <div id="loadingSpinner" style="display:none;" class="loading-spinner">
+                    <div class="spinner-border" role="status">
+                        <span class="visually-hidden">Generating...</span>
+                    </div>
+                    <p class="loading-text">AI is generating your problem...</p>
+                    <p class="loading-subtext">This may take 10-15 seconds</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+let generatedProblem = null;
+
+async function generateProblem() {
+    const topic = document.getElementById('topic').value.trim();
+    const difficulty = document.getElementById('difficulty').value;
+    const language = document.getElementById('language').value;
+    const subject_id = document.getElementById('subject_id').value;
+
+    if (!topic) {
+        alert('Please enter a topic');
+        return;
+    }
+
+    document.getElementById('loadingSpinner').style.display = 'block';
+    document.getElementById('previewArea').style.display = 'none';
+
+    try {
+        const response = await fetch('{% url "teacher_generate_problem" %}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': '{{ csrf_token }}'
+            },
+            body: JSON.stringify({
+                topic: topic,
+                difficulty: difficulty,
+                language: language
+            })
+        });
+
+        const data = await response.json();
+
+        if (!data.success) {
+            alert('Error: ' + data.error);
+            return;
+        }
+
+        generatedProblem = data.problem;
+        generatedProblem.topic = topic;
+        generatedProblem.difficulty = difficulty;
+        generatedProblem.subject_id = subject_id;
+
+        displayPreview(data.problem);
+
+    } catch (error) {
+        alert('Network error: ' + error.message);
+    } finally {
+        document.getElementById('loadingSpinner').style.display = 'none';
+    }
+}
+
+function displayPreview(problem) {
+    document.getElementById('preview_title').textContent = problem.title;
+    document.getElementById('preview_description').textContent = problem.description;
+    document.getElementById('preview_starter_code').textContent = problem.starter_code_python;
+
+    let testCasesHtml = '';
+    problem.test_cases.forEach((tc, idx) => {
+        const visibilityClass = tc.is_hidden ? 'hidden' : 'visible';
+        const visibilityText = tc.is_hidden ? '🔒 Hidden' : '👁️ Visible';
+        testCasesHtml += `
+            <div class="test-case-item">
+                <div class="test-case-header">
+                    <span class="test-case-title">Test Case ${idx + 1}</span>
+                    <span class="visibility-badge ${visibilityClass}">${visibilityText}</span>
+                </div>
+                <div class="test-case-content">
+                    <strong>Input:</strong> ${tc.input}<br>
+                    <strong>Expected Output:</strong> ${tc.output}
+                </div>
+            </div>
+        `;
+    });
+    document.getElementById('preview_test_cases').innerHTML = testCasesHtml;
+
+    document.getElementById('previewArea').style.display = 'block';
+}
+
+async function saveProblem() {
+    if (!generatedProblem) {
+        alert('No problem to save');
+        return;
+    }
+
+    if (!confirm('Save this problem?')) {
+        return;
+    }
+
+    try {
+        const response = await fetch('{% url "teacher_save_problem" %}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': '{{ csrf_token }}'
+            },
+            body: JSON.stringify(generatedProblem)
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+            alert('Problem saved successfully!');
+            window.location.href = '{% url "teacher_coding_problems" %}';
+        } else {
+            alert('Error: ' + data.error);
+        }
+    } catch (error) {
+        alert('Network error: ' + error.message);
+    }
+}
+
+function regenerate() {
+    if (confirm('Regenerate problem? Current preview will be lost.')) {
+        generateProblem();
+    }
+}
+</script>
+{% endblock %}
