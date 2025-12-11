@@ -9,6 +9,12 @@ from .utils import get_answer_for_pdf
 from authentication.models import User
 import json
 import requests
+import sys
+import os
+
+# Add campus directory to path for ai_fallback import
+sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
+from ai_fallback import generate_content
 
 
 @login_required
@@ -531,21 +537,6 @@ def knowledge_bot_ask(request):
 def search_wikipedia(query):
     """Search Wikipedia for relevant information using proper API"""
     try:
-        import os
-        from dotenv import load_dotenv
-        import google.generativeai as genai
-        
-        # Load .env from the campus directory
-        env_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), '.env')
-        load_dotenv(env_path)
-        
-        # Use Gemini AI to extract the main search topic from the question
-        api_key = os.getenv('API_KEY')
-        if not api_key:
-            raise ValueError(f"API_KEY not found in .env file at: {env_path}")
-        genai.configure(api_key=api_key)
-        model = genai.GenerativeModel('gemini-2.5-flash')
-        
         topic_prompt = f"""Extract the main topic/concept that should be searched on Wikipedia from this question.
 Return ONLY the search term(s) that would find the most relevant Wikipedia article.
 
@@ -562,8 +553,7 @@ Question: "{query}"
 Search term:"""
         
         try:
-            topic_response = model.generate_content(topic_prompt)
-            search_query = topic_response.text.strip().strip('"\'').lower()
+            search_query = generate_content(topic_prompt).strip().strip('"\'').lower()
         except:
             # Fallback to original query if AI fails
             search_query = query
@@ -670,13 +660,6 @@ def generate_knowledge_answer(question, wiki_context, history_context=""):
         context = wiki_context.get('context', '').strip()
         
         if context and len(context) > 50:
-            # Use Gemini AI to format and improve the answer
-            api_key = os.getenv('API_KEY')
-            if not api_key:
-                raise ValueError(f"API_KEY not found in .env file at: {env_path}")
-            genai.configure(api_key=api_key)
-            model = genai.GenerativeModel('gemini-2.0-flash-exp')
-            
             prompt = f"""You are a knowledgeable educational assistant providing definitions, history, and informational content from Wikipedia.
 
 Your role is to provide:
@@ -709,8 +692,7 @@ Format properly with clear paragraphs and structure.
 
 Provide the answer:"""
             
-            response = model.generate_content(prompt)
-            answer = response.text.strip()
+            answer = generate_content(prompt).strip()
             
             return answer
         else:
@@ -1103,11 +1085,6 @@ def generate_flashcards(request, pdf_id):
         if len(file_text) > max_chars:
             file_text = file_text[:max_chars]
 
-        api_key = os.getenv('API_KEY')
-        if not api_key:
-            raise ValueError(f"API_KEY not found in .env file at: {env_path}")
-        genai.configure(api_key=api_key)
-
         prompt = f"""Create {num_cards} high-quality study flashcards from the provided content.
 
 Return ONLY valid JSON array with this exact shape (no extra text):
@@ -1125,46 +1102,10 @@ CONTENT:
 {file_text}
 """
 
-        # Try preferred model with graceful fallback on rate limits/quota
-        model_preferences = [
-            os.getenv('GENAI_FLASHCARDS_MODEL'),
-            'gemini-2.5-flash',
-            'gemini-1.5-flash'
-        ]
-        model_candidates = [m for m in model_preferences if m]
-
-        response = None
-        last_error = None
-        for idx, model_name in enumerate(model_candidates):
-            try:
-                model = genai.GenerativeModel(model_name)
-                response = model.generate_content(prompt)
-                break
-            except Exception as ai_err:
-                last_error = ai_err
-                err_text = str(ai_err).lower()
-                is_quota = ('quota' in err_text) or ('rate limit' in err_text) or ('429' in err_text)
-                is_last = idx == len(model_candidates) - 1
-                if is_quota and not is_last:
-                    # Try next model if available
-                    continue
-                status_code = 429 if is_quota else 500
-                return JsonResponse({'error': f'AI generation failed ({model_name}): {ai_err}'}, status=status_code)
-
-        if response is None:
-            return JsonResponse({'error': f'AI generation failed: {last_error}'}, status=500)
-
-        # Safely extract text from Gemini response
-        response_text = ''
-        if hasattr(response, 'text') and response.text:
-            response_text = response.text.strip()
-        elif getattr(response, 'candidates', None):
-            for cand in response.candidates:
-                if getattr(cand, 'content', None) and getattr(cand.content, 'parts', None):
-                    for part in cand.content.parts:
-                        if getattr(part, 'text', None):
-                            response_text += part.text
-            response_text = response_text.strip()
+        try:
+            response_text = generate_content(prompt).strip()
+        except Exception as ai_err:
+            return JsonResponse({'error': f'AI generation failed: {ai_err}'}, status=500)
 
         # Remove markdown fences if present
         if "```" in response_text:

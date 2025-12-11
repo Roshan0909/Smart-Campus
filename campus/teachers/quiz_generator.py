@@ -2,22 +2,13 @@ import os
 from PyPDF2 import PdfReader
 from docx import Document
 from pptx import Presentation
-from google import genai
-from dotenv import load_dotenv
 import json
 import re
+import sys
 
-# Load .env from the campus directory
-env_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), '.env')
-load_dotenv(env_path)
-
-API_KEY = os.getenv("API_KEY")
-
-# Validate API key
-if not API_KEY:
-    raise ValueError("API_KEY not found in environment variables. Please check your .env file at: " + env_path)
-
-client = genai.Client(api_key=API_KEY)
+# Add campus directory to path for ai_fallback import
+sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
+from ai_fallback import generate_content
 
 def extract_text_from_pdf(pdf_path, max_pages=20):
     """Extract text from PDF (limit to first max_pages for speed)"""
@@ -151,16 +142,9 @@ Rules:
 - Return ONLY valid JSON, nothing else"""
     
     try:
-        response = client.models.generate_content(
-            model="gemini-2.5-flash",
-            contents=prompt,
-            config={
-                "temperature": 0.7,
-                "response_mime_type": "application/json"
-            }
-        )
+        response = generate_content(prompt, temperature=0.7)
         
-        response_text = response.text.strip()
+        response_text = response.strip()
         
         # Check if response is empty
         if not response_text:

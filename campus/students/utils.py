@@ -8,6 +8,11 @@ from langchain_core.embeddings import Embeddings
 from typing import List
 from dotenv import load_dotenv
 import hashlib
+import sys
+
+# Add campus directory to path for ai_fallback import
+sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
+from ai_fallback import generate_content
 
 # Load .env from the campus directory
 env_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), '.env')
@@ -19,7 +24,7 @@ API_KEY = os.getenv("API_KEY")
 if not API_KEY:
     raise ValueError("API_KEY not found in environment variables. Please check your .env file at: " + env_path)
 
-# Configure the genai client
+# Configure the genai client (still needed for embeddings)
 client = genai.Client(api_key=API_KEY)
 
 # Custom embeddings class using the new genai API
@@ -152,12 +157,9 @@ def get_answer_from_context(context, question, chat_history=""):
     Answer:
     """
     
-    response = client.models.generate_content(
-        model="gemini-2.5-flash",
-        contents=prompt
-    )
+    response = generate_content(prompt)
     
-    return response.text
+    return response
 
 def get_answer_for_pdf(pdf_path, question, chat_history=""):
     """Get answer for a question about a specific PDF - optimized for large documents"""
