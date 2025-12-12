@@ -251,6 +251,21 @@
         border: 3px solid #06B6D4;
     }
     
+    .score-circle.completed {
+        background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
+        border: 3px solid #10b981;
+        animation: pulse-green 2s ease-in-out infinite;
+    }
+    
+    @keyframes pulse-green {
+        0%, 100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.4); }
+        50% { box-shadow: 0 0 0 8px rgba(16, 185, 129, 0); }
+    }
+    
+    .score-circle.completed .score-value {
+        color: #065f46;
+    }
+    
     .score-value {
         font-size: 1.2rem;
         font-weight: 800;
@@ -295,6 +310,19 @@
         box-shadow: 0 4px 8px rgba(6, 182, 212, 0.4);
         transform: translateY(-2px);
         color: white;
+    }
+    
+    .action-btn-completed {
+        background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        color: white;
+        box-shadow: 0 2px 4px rgba(16, 185, 129, 0.3);
+        cursor: not-allowed;
+        opacity: 0.8;
+    }
+    
+    .action-btn-completed:hover {
+        transform: none;
+        filter: none;
     }
     
     .action-btn-outline {
@@ -478,18 +506,25 @@
             
             {% if item.best_score > 0 %}
             <div class="score-display">
-                <div class="score-circle">
+                <div class="score-circle {% if item.completed %}completed{% endif %}">
                     <div class="score-value">{{ item.best_score }}%</div>
                 </div>
-                <div class="score-label">Best Score</div>
+                <div class="score-label">{% if item.completed %}✅ Perfect!{% else %}Best Score{% endif %}</div>
             </div>
             {% endif %}
             
             <div class="assignment-actions">
+                {% if item.completed %}
+                <button class="action-btn action-btn-completed" disabled title="This problem is completed and locked">
+                    <i class="bi bi-lock-fill"></i>
+                    <span>Completed</span>
+                </button>
+                {% else %}
                 <a href="{% url 'student_solve_problem' item.assignment.id %}" class="action-btn action-btn-primary">
                     <i class="bi bi-{% if item.solved %}eye{% else %}play-fill{% endif %}"></i>
                     <span>{% if item.solved %}View{% else %}Solve{% endif %}</span>
                 </a>
+                {% endif %}
             </div>
         </div>
         {% endfor %}

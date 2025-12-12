@@ -10,9 +10,8 @@
     display: flex;
     height: calc(100vh - 60px);
     gap: 0;
-    margin: 0;
-    position: relative;
-    overflow: hidden;
+   padding: 20px;
+    overflow: scroll;
 }
 
 /* LEFT: Problem Description (45%) */
@@ -318,7 +317,7 @@
 
 .test-cases-container {
     flex: 1;
-    overflow-y: auto;
+    overflow-y: hidden;
     padding: 0;
     background: white;
     display: flex;
@@ -395,9 +394,7 @@
 .test-results-table thead {
     background: linear-gradient(135deg, #ECFEFF 0%, #CFFAFE 100%);
     border-bottom: 2px solid #06B6D4;
-    position: sticky;
-    top: 0;
-    z-index: 1;
+    position: static;
 }
 
 .test-results-table th {
@@ -659,6 +656,27 @@
 @keyframes spin {
     to { transform: rotate(360deg); }
 }
+
+/* Completed/Locked State */
+.editor-panel.locked .monaco-editor {
+    opacity: 0.7;
+    pointer-events: none;
+}
+
+#successBanner {
+    animation: slideDown 0.5s ease-out;
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
 </style>
 
 <div class="code-arena-container">
@@ -775,7 +793,8 @@
         </div>
 
         <div id="resultsPanel" class="results-panel">
-            <div id="resultsContent" class="results-content" style="text-align:center;padding:2rem;color:#94a3b8;">
+            <div id="resultsHint"></div>
+            <div id="resultsContent" class="results-content" style="text-align:center;padding:0;color:#94a3b8;">
                 <i class="bi bi-play-circle" style="font-size:2.5rem;display:block;margin-bottom:0.75rem;opacity:0.5;"></i>
                 <p style="font-size:0.875rem;margin:0;">Run your code to see test results</p>
             </div>
@@ -791,6 +810,8 @@
 // ============================================
 const ASSIGNMENT_ID = {{ assignment.id }};
 const CSRF_TOKEN = '{{ csrf_token }}';
+const IS_COMPLETED = {% if best_submission and best_submission.score == 100 %}true{% else %}false{% endif %};
+const COMPLETED_SCORE = {% if best_submission %}{{ best_submission.score }}{% else %}0{% endif %};
 
 let monacoEditor = null;
 let currentLanguage = 'python';
@@ -841,6 +862,13 @@ require(['vs/editor/editor.main'], function() {
 // EVENT LISTENERS
 // ============================================
 document.addEventListener('DOMContentLoaded', function() {
+    // Check if problem is already completed
+    if (IS_COMPLETED) {
+        setTimeout(() => {
+            lockProblem(COMPLETED_SCORE);
+        }, 1000); // Wait for editor to initialize
+    }
+    
     // Run Code button
     document.getElementById('runBtn').addEventListener('click', runCode);
     
@@ -883,6 +911,11 @@ document.getElementById('languageSelect').addEventListener('change', function() 
 async function runCode() {
     if (!monacoEditor) {
         alert('Editor not ready');
+        return;
+    }
+    
+    if (IS_COMPLETED) {
+        alert('✅ This problem is already completed with a perfect score!\nYou cannot reattempt this problem.');
         return;
     }
 
@@ -933,6 +966,11 @@ async function submitCode() {
         alert('Editor not ready');
         return;
     }
+    
+    if (IS_COMPLETED) {
+        alert('✅ This problem is already completed with a perfect score!\nYou cannot reattempt this problem.');
+        return;
+    }
 
     if (!confirm('Submit your solution? This will run all test cases (including hidden ones) and save your submission.')) {
         return;
@@ -943,6 +981,8 @@ async function submitCode() {
     
     submitBtn.disabled = true;
     submitBtn.innerHTML = '<span class="spinner"></span> Submitting...';
+    
+    let allPassed = false;
 
     try {
         const response = await fetch('{% url "student_submit_code" %}', {
@@ -973,17 +1013,72 @@ async function submitCode() {
         }
         
         if (data.all_passed) {
+            allPassed = true;
+            lockProblem(data.score);
             setTimeout(() => {
-                alert('🎉 Congratulations! All test cases passed!\nScore: ' + data.score + '/100');
+                alert('🎉 Congratulations! All test cases passed!\nScore: ' + data.score + '/100\n\nThis problem is now marked as completed and locked.');
             }, 500);
         }
         
     } catch (error) {
         alert('Network error: ' + error.message);
     } finally {
-        submitBtn.disabled = false;
-        submitBtn.innerHTML = '<i class="bi bi-check-circle"></i> Submit Solution';
+        if (!allPassed) {
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = '<i class="bi bi-check-circle"></i> Submit Solution';
+        }
     }
+}
+
+function lockProblem(score) {
+    // Disable editor
+    if (monacoEditor) {
+        monacoEditor.updateOptions({ readOnly: true });
+    }
+    
+    // Disable buttons
+    const runBtn = document.getElementById('runBtn');
+    const submitBtn = document.getElementById('submitBtn');
+    const languageSelect = document.getElementById('languageSelect');
+    
+    runBtn.disabled = true;
+    runBtn.innerHTML = '<i class="bi bi-check-circle-fill"></i> Completed';
+    runBtn.style.background = 'linear-gradient(135deg, #10b981 0%, #059669 100%)';
+    
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = '<i class="bi bi-lock-fill"></i> Locked';
+    submitBtn.style.background = '#94a3b8';
+    submitBtn.style.cursor = 'not-allowed';
+    
+    languageSelect.disabled = true;
+    
+    // Add success banner at top
+    const editorPanel = document.querySelector('.editor-panel');
+    const successBanner = document.createElement('div');
+    successBanner.id = 'successBanner';
+    successBanner.style.cssText = `
+        background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
+        border-bottom: 2px solid #10b981;
+        padding: 0.75rem 1rem;
+        text-align: center;
+        font-weight: 700;
+        color: #065f46;
+        font-size: 0.875rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        box-shadow: 0 2px 8px rgba(16, 185, 129, 0.2);
+    `;
+    successBanner.innerHTML = `
+        <i class="bi bi-trophy-fill" style="font-size:1.25rem;color:#10b981;"></i>
+        <span>✅ Problem Completed! Score: ${score}/100 - This problem is now locked and cannot be reattempted.</span>
+    `;
+    
+    const toolbar = editorPanel.querySelector('.editor-toolbar');
+    editorPanel.insertBefore(successBanner, toolbar);
+    
+    console.log('✅ Problem locked - All tests passed!');
 }
 
 function displayResults(data, isSubmission) {
@@ -991,6 +1086,7 @@ function displayResults(data, isSubmission) {
     
     const panel = document.getElementById('resultsPanel');
     const content = document.getElementById('resultsContent');
+    const hint = document.getElementById('resultsHint');
 
     if (!panel || !content) {
         console.error('Results panel elements not found!');
@@ -1000,6 +1096,11 @@ function displayResults(data, isSubmission) {
     // Make panel visible
     panel.classList.remove('hidden');
 
+    // Reset/clear hint container first
+    if (hint) {
+        hint.innerHTML = '';
+    }
+
     let html = '';
 
     if (!data.results || data.results.length === 0) {
@@ -1008,12 +1109,9 @@ function displayResults(data, isSubmission) {
         return;
     }
 
-    // Start container
-    html += `<div class="test-cases-container">`;
-
-    // Show AI-generated friendly hint if available
-    if (data.friendly_hint) {
-        html += `
+    // If a friendly hint exists, render it outside the scrollable content
+    if (hint && data.friendly_hint) {
+        hint.innerHTML = `
             <div class="hint-banner">
                 <div class="hint-content">
                     <span class="hint-emoji">💡</span>
@@ -1025,6 +1123,9 @@ function displayResults(data, isSubmission) {
             </div>
         `;
     }
+
+    // Start container (table area only)
+    html += `<div class="test-cases-container">`;
 
     // Build table in scrollable wrapper
     html += `<div class="table-wrapper">`;
