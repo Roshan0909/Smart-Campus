@@ -418,6 +418,76 @@
 <script>
 let generatedProblem = null;
 
+// ============================================
+// STYLED DIALOG FUNCTIONS
+// ============================================
+function showAlert(message, type = 'info', title = 'Notice') {
+    const iconMap = {
+        'info': 'ℹ️',
+        'warning': '⚠️',
+        'error': '❌',
+        'success': '✅'
+    };
+    
+    const overlay = document.createElement('div');
+    overlay.className = 'dialog-overlay';
+    
+    const modal = document.createElement('div');
+    modal.className = 'dialog-modal';
+    modal.innerHTML = `
+        <div class="dialog-header ${type}">
+            <div class="dialog-icon">${iconMap[type] || 'ℹ️'}</div>
+            <h3 class="dialog-title">${title}</h3>
+        </div>
+        <div class="dialog-body">
+            <p class="dialog-message">${message}</p>
+            <div class="dialog-buttons">
+                <button class="dialog-btn btn-confirm" onclick="closeDialog()">OK</button>
+            </div>
+        </div>
+    `;
+    
+    document.body.appendChild(overlay);
+    document.body.appendChild(modal);
+}
+
+function showConfirm(options) {
+    return new Promise((resolve) => {
+        const { title = 'Confirm', message = 'Are you sure?', confirmText = 'Yes', cancelText = 'Cancel', icon = '❓', type = 'confirm' } = options;
+        
+        const overlay = document.createElement('div');
+        overlay.className = 'dialog-overlay';
+        overlay.id = 'confirmOverlay';
+        
+        const modal = document.createElement('div');
+        modal.className = 'dialog-modal';
+        modal.id = 'confirmModal';
+        modal.innerHTML = `
+            <div class="dialog-header ${type}">
+                <div class="dialog-icon">${icon}</div>
+                <h3 class="dialog-title">${title}</h3>
+            </div>
+            <div class="dialog-body">
+                <p class="dialog-message">${message}</p>
+                <div class="dialog-buttons">
+                    <button class="dialog-btn btn-cancel" id="dialogCancelBtn">${cancelText}</button>
+                    <button class="dialog-btn btn-confirm" id="dialogConfirmBtn">${confirmText}</button>
+                </div>
+            </div>
+        `;
+        
+        document.body.appendChild(overlay);
+        document.body.appendChild(modal);
+        
+        document.getElementById('dialogConfirmBtn').onclick = () => { closeDialog(); resolve(true); };
+        document.getElementById('dialogCancelBtn').onclick = () => { closeDialog(); resolve(false); };
+    });
+}
+
+function closeDialog() {
+    document.querySelectorAll('.dialog-overlay, .dialog-modal').forEach(el => el.remove());
+}
+
 async function generateProblem() {
     const topic = document.getElementById('topic').value.trim();
     const difficulty = document.getElementById('difficulty').value;
@@ -425,7 +495,7 @@ async function generateProblem() {
     const subject_id = document.getElementById('subject_id').value;
 
     if (!topic) {
-        alert('Please enter a topic');
+        showAlert('Please enter a topic for the problem.', 'warning', 'Topic Required');
         return;
     }
 
@@ -449,7 +519,7 @@ async function generateProblem() {
         const data = await response.json();
 
         if (!data.success) {
-            alert('Error: ' + data.error);
+            showAlert('Error: ' + data.error, 'error', 'Generation Failed');
             return;
         }
 
@@ -461,7 +531,7 @@ async function generateProblem() {
         displayPreview(data.problem);
 
     } catch (error) {
-        alert('Network error: ' + error.message);
+        showAlert('Network error: ' + error.message, 'error', 'Connection Error');
     } finally {
         document.getElementById('loadingSpinner').style.display = 'none';
     }
@@ -496,13 +566,20 @@ function displayPreview(problem) {
 
 async function saveProblem() {
     if (!generatedProblem) {
-        alert('No problem to save');
+        showAlert('No problem to save. Please generate a problem first.', 'warning', 'No Problem');
         return;
     }
 
-    if (!confirm('Save this problem?')) {
-        return;
-    }
+    const confirmed = await showConfirm({
+        title: '💾 Save Problem',
+        message: 'Save this problem to your problem bank?<br><br>You can assign it to students later.',
+        confirmText: 'Save',
+        cancelText: 'Cancel',
+        icon: '💾',
+        type: 'confirm'
+    });
+    
+    if (!confirmed) return;
 
     try {
         const response = await fetch('{% url "teacher_save_problem" %}', {
@@ -517,20 +594,92 @@ async function saveProblem() {
         const data = await response.json();
 
         if (data.success) {
-            alert('Problem saved successfully!');
-            window.location.href = '{% url "teacher_coding_problems" %}';
+            showAlert('Problem saved successfully!<br><br>Redirecting to problems list...', 'success', '✅ Saved');
+            setTimeout(() => {
+                window.location.href = '{% url "teacher_coding_problems" %}';
+            }, 1500);
         } else {
-            alert('Error: ' + data.error);
+            showAlert('Error: ' + data.error, 'error', 'Save Failed');
         }
     } catch (error) {
-        alert('Network error: ' + error.message);
+        showAlert('Network error: ' + error.message, 'error', 'Connection Error');
     }
 }
 
-function regenerate() {
-    if (confirm('Regenerate problem? Current preview will be lost.')) {
+async function regenerate() {
+    const confirmed = await showConfirm({
+        title: '🔄 Regenerate Problem',
+        message: 'Regenerate a new problem?<br><br><strong>Current preview will be lost.</strong>',
+        confirmText: 'Regenerate',
+        cancelText: 'Cancel',
+        icon: '🔄',
+        type: 'warning'
+    });
+    
+    if (confirmed) {
         generateProblem();
     }
 }
 </script>
+
+<style>
+/* Styled Dialog CSS */
+.dialog-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.85);
+    backdrop-filter: blur(8px);
+    z-index: 99998;
+    animation: fadeIn 0.3s ease;
+}
+.dialog-modal {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: white;
+    border-radius: 16px;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+    z-index: 99999;
+    max-width: 450px;
+    width: 90%;
+    animation: slideIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+    overflow: hidden;
+}
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+@keyframes slideIn { from { opacity: 0; transform: translate(-50%, -60%) scale(0.9); } to { opacity: 1; transform: translate(-50%, -50%) scale(1); } }
+.dialog-header {
+    padding: 20px 24px;
+    border-bottom: 2px solid #e2e8f0;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+}
+.dialog-header.info { background: linear-gradient(135deg, #E0F2FE 0%, #BAE6FD 100%); }
+.dialog-header.warning { background: linear-gradient(135deg, #FEF3C7 0%, #FDE68A 100%); }
+.dialog-header.error { background: linear-gradient(135deg, #FEE2E2 0%, #FECACA 100%); }
+.dialog-header.success { background: linear-gradient(135deg, #D1FAE5 0%, #A7F3D0 100%); }
+.dialog-header.confirm { background: linear-gradient(135deg, #ECFEFF 0%, #CFFAFE 100%); }
+.dialog-icon { font-size: 1.75rem; }
+.dialog-title { font-size: 1.15rem; font-weight: 700; color: #1e293b; margin: 0; }
+.dialog-body { padding: 24px; }
+.dialog-message { font-size: 0.95rem; line-height: 1.7; color: #475569; margin-bottom: 20px; }
+.dialog-buttons { display: flex; gap: 12px; justify-content: center; }
+.dialog-btn {
+    padding: 10px 22px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s;
+    color: white;
+}
+.dialog-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15); }
+.dialog-btn.btn-cancel { background: linear-gradient(135deg, #94a3b8 0%, #64748b 100%); }
+.dialog-btn.btn-confirm { background: linear-gradient(135deg, #06B6D4 0%, #0891b2 100%); }
+</style>
 {% endblock %}

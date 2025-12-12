@@ -916,6 +916,14 @@
     background: linear-gradient(135deg, #FEE2E2 0%, #FECACA 100%);
 }
 
+.custom-alert-header.success {
+    background: linear-gradient(135deg, #D1FAE5 0%, #A7F3D0 100%);
+}
+
+.custom-alert-header.confirm {
+    background: linear-gradient(135deg, #ECFEFF 0%, #CFFAFE 100%);
+}
+
 .custom-alert-icon {
     font-size: 2rem;
     flex-shrink: 0;
@@ -958,6 +966,22 @@
 
 .custom-alert-btn:active {
     transform: translateY(0);
+}
+
+.custom-alert-btn.btn-cancel {
+    background: linear-gradient(135deg, #94a3b8 0%, #64748b 100%);
+}
+
+.custom-alert-btn.btn-confirm {
+    background: linear-gradient(135deg, #06B6D4 0%, #0891b2 100%);
+}
+
+.custom-alert-btn.btn-danger {
+    background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+}
+
+.custom-alert-btn.btn-success {
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
 }
 
 /* ===== FULLSCREEN: Fill entire viewport and eliminate sidebar gap ===== */
@@ -1605,6 +1629,13 @@ function handleFullscreenChange() {
 }
 
 function showAlert(message, type = 'info', title = 'Notice') {
+    const iconMap = {
+        'info': 'ℹ️',
+        'warning': '⚠️',
+        'error': '❌',
+        'success': '✅'
+    };
+    
     const overlay = document.createElement('div');
     overlay.className = 'custom-alert-overlay';
     overlay.style.display = 'block';
@@ -1613,13 +1644,13 @@ function showAlert(message, type = 'info', title = 'Notice') {
     modal.className = 'custom-alert-modal';
     modal.innerHTML = `
         <div class="custom-alert-header ${type}">
-            <div class="custom-alert-icon">${type === 'error' ? '❌' : type === 'warning' ? '⚠️' : 'ℹ️'}</div>
+            <div class="custom-alert-icon">${iconMap[type] || 'ℹ️'}</div>
             <h3 class="custom-alert-title">${title}</h3>
         </div>
         <div class="custom-alert-body">
             <p class="custom-alert-message">${message}</p>
             <div style="display: flex; gap: 15px; justify-content: center;">
-                <button class="custom-alert-btn" onclick="closeAlert()" style="background: linear-gradient(135deg, #06B6D4 0%, #0891b2 100%);">
+                <button class="custom-alert-btn btn-confirm" onclick="closeAlert()">
                     OK
                 </button>
             </div>
@@ -1628,6 +1659,61 @@ function showAlert(message, type = 'info', title = 'Notice') {
     
     document.body.appendChild(overlay);
     document.body.appendChild(modal);
+}
+
+// Custom Confirm Dialog - returns a Promise
+function showCustomConfirm(options) {
+    return new Promise((resolve) => {
+        const {
+            title = 'Confirm',
+            message = 'Are you sure?',
+            confirmText = 'Yes',
+            cancelText = 'Cancel',
+            type = 'confirm',
+            icon = '❓'
+        } = options;
+        
+        const overlay = document.createElement('div');
+        overlay.className = 'custom-alert-overlay';
+        overlay.style.display = 'block';
+        overlay.id = 'confirmOverlay';
+        
+        const modal = document.createElement('div');
+        modal.className = 'custom-alert-modal';
+        modal.id = 'confirmModal';
+        modal.innerHTML = `
+            <div class="custom-alert-header ${type}">
+                <div class="custom-alert-icon">${icon}</div>
+                <h3 class="custom-alert-title">${title}</h3>
+            </div>
+            <div class="custom-alert-body">
+                <p class="custom-alert-message">${message}</p>
+                <div style="display: flex; gap: 15px; justify-content: center;">
+                    <button class="custom-alert-btn btn-cancel" id="confirmCancelBtn">
+                        ${cancelText}
+                    </button>
+                    <button class="custom-alert-btn btn-confirm" id="confirmOkBtn">
+                        ${confirmText}
+                    </button>
+                </div>
+            </div>
+        `;
+        
+        document.body.appendChild(overlay);
+        document.body.appendChild(modal);
+        
+        document.getElementById('confirmOkBtn').addEventListener('click', () => {
+            overlay.remove();
+            modal.remove();
+            resolve(true);
+        });
+        
+        document.getElementById('confirmCancelBtn').addEventListener('click', () => {
+            overlay.remove();
+            modal.remove();
+            resolve(false);
+        });
+    });
 }
 
 window.closeAlert = function() {
@@ -1695,12 +1781,12 @@ document.getElementById('languageSelect').addEventListener('change', function() 
 // ============================================
 async function runCode() {
     if (!monacoEditor) {
-        alert('Editor not ready');
+        showAlert('Editor not ready. Please wait for it to initialize.', 'warning', 'Editor Not Ready');
         return;
     }
     
     if (IS_COMPLETED) {
-        alert('✅ This problem is already completed with a perfect score!\nYou cannot reattempt this problem.');
+        showAlert('This problem is already completed with a perfect score!<br><br>You cannot reattempt this problem.', 'success', '✅ Already Completed');
         return;
     }
 
@@ -1728,18 +1814,18 @@ async function runCode() {
         console.log('Run Code Response:', data);
         
         if (!data.success) {
-            alert('Error: ' + data.error);
+            showAlert('Error: ' + data.error, 'error', 'Run Failed');
             return;
         }
 
         if (data.results && data.results.length > 0) {
             displayResults(data, false);
         } else {
-            alert('No test results received. Please check if test cases are configured.');
+            showAlert('No test results received. Please check if test cases are configured.', 'warning', 'No Results');
         }
         
     } catch (error) {
-        alert('Network error: ' + error.message);
+        showAlert('Network error: ' + error.message, 'error', 'Connection Error');
     } finally {
         runBtn.disabled = false;
         runBtn.innerHTML = '<i class="bi bi-play-fill"></i> Run Code';
@@ -1748,21 +1834,30 @@ async function runCode() {
 
 async function submitCode() {
     if (!monacoEditor) {
-        alert('Editor not ready');
+        showAlert('Editor not ready. Please wait for it to initialize.', 'warning', 'Editor Not Ready');
         return;
     }
     
     if (IS_COMPLETED) {
-        alert('✅ This problem is already completed with a perfect score!\nYou cannot reattempt this problem.');
+        showAlert('This problem is already completed with a perfect score!<br><br>You cannot reattempt this problem.', 'success', '✅ Already Completed');
         return;
     }
     
     if (codeSubmitted) {
-        alert('Code already submitted!');
+        showAlert('Code already submitted! Please wait for the results.', 'info', 'Already Submitted');
         return;
     }
 
-    if (!confirm('Submit your solution? This will run all test cases (including hidden ones) and save your submission.')) {
+    const confirmed = await showCustomConfirm({
+        title: '📤 Submit Solution',
+        message: 'Submit your solution?<br><br>This will run <strong>all test cases</strong> (including hidden ones) and save your submission.',
+        confirmText: 'Submit',
+        cancelText: 'Cancel',
+        icon: '📝',
+        type: 'confirm'
+    });
+    
+    if (!confirmed) {
         return;
     }
 
@@ -1793,7 +1888,7 @@ async function submitCode() {
         console.log('Submit Code Response:', data);
         
         if (!data.success) {
-            alert('Error: ' + data.error);
+            showAlert('Error: ' + data.error, 'error', 'Submission Failed');
             codeSubmitted = false;  // Allow retry on error
             return;
         }
@@ -1801,7 +1896,7 @@ async function submitCode() {
         if (data.results && data.results.length > 0) {
             displayResults(data, true);
         } else {
-            alert('No test results received. Please check if test cases are configured.');
+            showAlert('No test results received. Please check if test cases are configured.', 'warning', 'No Results');
         }
         
         if (data.all_passed) {
@@ -1853,7 +1948,7 @@ async function submitCode() {
         }
         
     } catch (error) {
-        alert('Network error: ' + error.message);
+        showAlert('Network error: ' + error.message, 'error', 'Connection Error');
         codeSubmitted = false;  // Allow retry on error
     } finally {
         if (!allPassed) {
