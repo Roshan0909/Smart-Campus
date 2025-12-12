@@ -50,8 +50,11 @@ def assignments_dashboard(request):
             assignment=assignment
         ).order_by('-score', 'submitted_at').first()
         
-        # Check if completed with perfect score
-        is_completed = best_submission and best_submission.score == 100
+        # Check if completed (any submission locks the assignment)
+        is_completed = best_submission is not None
+        
+        # Always show score if there's a submission
+        best_score = best_submission.score if best_submission else None
         
         assignments_data.append({
             'assignment': assignment,
@@ -59,7 +62,7 @@ def assignments_dashboard(request):
             'attempted': is_attempted,
             'overdue': is_overdue,
             'completed': is_completed,  # ✅ NEW: Perfect score flag
-            'best_score': best_submission.score if best_submission else 0,
+            'best_score': best_score,  # Changed to show None instead of 0
             'best_status': best_submission.status if best_submission else None,
         })
     
@@ -90,8 +93,8 @@ def solve_problem(request, assignment_id):
         assignment=assignment
     ).order_by('-score').first()
     
-    if best_submission and best_submission.score == 100:
-        messages.warning(request, f'✅ You have already completed "{assignment.problem.title}" with a perfect score (100/100). This problem is locked and cannot be reattempted.')
+    if best_submission:
+        messages.warning(request, f'🔒 You have already submitted "{assignment.problem.title}". This problem is locked and cannot be reattempted.')
         return redirect('student_coding_dashboard')
     
     problem = assignment.problem

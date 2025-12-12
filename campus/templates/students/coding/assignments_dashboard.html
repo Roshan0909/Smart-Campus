@@ -504,25 +504,25 @@
                 </div>
             </div>
             
-            {% if item.best_score > 0 %}
+            {% if item.best_score is not None %}
             <div class="score-display">
-                <div class="score-circle {% if item.completed %}completed{% endif %}">
+                <div class="score-circle {% if item.best_score == 100 %}completed{% endif %}">
                     <div class="score-value">{{ item.best_score }}%</div>
                 </div>
-                <div class="score-label">{% if item.completed %}✅ Perfect!{% else %}Best Score{% endif %}</div>
+                <div class="score-label">{% if item.best_score == 100 %}✅ Perfect!{% else %}Best Score{% endif %}</div>
             </div>
             {% endif %}
             
             <div class="assignment-actions">
                 {% if item.completed %}
-                <button class="action-btn action-btn-completed" disabled title="This problem is completed and locked">
+                <button class="action-btn action-btn-completed" disabled title="This problem is locked - no reattempts allowed">
                     <i class="bi bi-lock-fill"></i>
-                    <span>Completed</span>
+                    <span>Locked</span>
                 </button>
                 {% else %}
                 <a href="{% url 'student_solve_problem' item.assignment.id %}" class="action-btn action-btn-primary">
-                    <i class="bi bi-{% if item.solved %}eye{% else %}play-fill{% endif %}"></i>
-                    <span>{% if item.solved %}View{% else %}Solve{% endif %}</span>
+                    <i class="bi bi-play-fill"></i>
+                    <span>Solve</span>
                 </a>
                 {% endif %}
             </div>
