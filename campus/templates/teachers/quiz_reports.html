@@ -384,11 +384,19 @@ async function applyFilters(page = 1) {
             document.getElementById('recordCount').textContent = `Total records: ${allAttempts.length} (Page ${currentPage} of ${totalPages || 1})`;
             renderPagination(totalPages);
         } else {
-            alert('Error: ' + data.error);
+            showAlertModal({
+                title: 'Filter error',
+                message: 'Error: ' + data.error,
+                type: 'error'
+            });
         }
     } catch (error) {
         console.error('Error:', error);
-        alert('Error applying filters');
+        showAlertModal({
+            title: 'Filter failed',
+            message: 'Error applying filters',
+            type: 'error'
+        });
     }
 }
 

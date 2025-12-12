@@ -557,18 +557,30 @@ function generateQuiz() {
     if (sourceType === 'course') {
         const pdfNoteId = document.getElementById('pdf_note_id').value;
         if (!pdfNoteId) {
-            alert('Please select a course document');
+            showAlertModal({
+                title: 'Course document required',
+                message: 'Please select a course document before generating a quiz.',
+                type: 'warning'
+            });
             return;
         }
     } else {
         const file = document.getElementById('file').files[0];
         if (!file) {
-            alert('Please upload a file');
+            showAlertModal({
+                title: 'Upload needed',
+                message: 'Please upload a PDF, DOCX, or PPTX file to generate questions.',
+                type: 'warning'
+            });
             return;
         }
         // Check file size (50MB)
         if (file.size > 50 * 1024 * 1024) {
-            alert('File size must be less than 50MB');
+            showAlertModal({
+                title: 'File too large',
+                message: 'File size must be less than 50MB.',
+                type: 'error'
+            });
             return;
         }
     }
@@ -591,14 +603,22 @@ function generateQuiz() {
             // Redirect directly without alert
             window.location.href = `/student/practice-quiz/take/${data.quiz_id}/`;
         } else {
-            alert('Error: ' + (data.error || 'Failed to generate quiz'));
+            showAlertModal({
+                title: 'Generation failed',
+                message: 'Error: ' + (data.error || 'Failed to generate quiz'),
+                type: 'error'
+            });
             btn.disabled = false;
             btn.innerHTML = originalText;
         }
     })
     .catch(error => {
         console.error('Error:', error);
-        alert('Error generating quiz: ' + error.message);
+        showAlertModal({
+            title: 'Network error',
+            message: 'Error generating quiz: ' + error.message,
+            type: 'error'
+        });
         btn.disabled = false;
         btn.innerHTML = originalText;
     });

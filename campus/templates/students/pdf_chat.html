@@ -484,12 +484,20 @@
                 loadingIndicator.insertAdjacentHTML('beforebegin', aiMessageHtml);
                 scrollToBottom();
             } else {
-                alert('Error: ' + (data.error || 'Something went wrong'));
+                showAlertModal({
+                    title: 'Chat failed',
+                    message: 'Error: ' + (data.error || 'Something went wrong'),
+                    type: 'error'
+                });
             }
         } catch (error) {
             console.error('Error:', error);
             loadingIndicator.style.display = 'none';
-            alert('Error: Failed to get response. Please try again.');
+            showAlertModal({
+                title: 'Network error',
+                message: 'Failed to get response. Please try again.',
+                type: 'error'
+            });
         }
         
         questionInput.disabled = false;

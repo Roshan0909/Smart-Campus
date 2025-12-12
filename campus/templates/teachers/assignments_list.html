@@ -178,8 +178,8 @@
                                 <i class="bi bi-bar-chart me-1"></i>View Submissions
                             </a>
                             <br>
-                            <button onclick="if(confirm('Deactivate this assignment?')) window.location='#'" 
-                                    class="btn btn-outline-danger btn-sm">
+                            <button class="btn btn-outline-danger btn-sm deactivate-assignment-btn"
+                                    data-assignment-title="{{ assignment.problem.title }}">
                                 <i class="bi bi-x-circle me-1"></i>Deactivate
                             </button>
                         </div>
@@ -198,6 +198,32 @@
             {% endif %}
         </div>
     </div>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', () => {
+        document.querySelectorAll('.deactivate-assignment-btn').forEach(btn => {
+            btn.addEventListener('click', async function() {
+                const title = this.dataset.assignmentTitle || 'this assignment';
+                const confirmed = await showConfirmModal({
+                    title: 'Deactivate assignment?',
+                    message: `Are you sure you want to deactivate "${title}"? Students will no longer see it.`,
+                    type: 'warning',
+                    confirmText: 'Deactivate',
+                    cancelText: 'Cancel',
+                    danger: true
+                });
+                if (confirmed) {
+                    // TODO: replace with real deactivate endpoint when available
+                    showAlertModal({
+                        title: 'Action pending',
+                        message: 'Deactivation endpoint not configured yet.',
+                        type: 'info'
+                    });
+                }
+            });
+        });
+    });
+    </script>
     
     <!-- Statistics -->
     {% if assignments %}

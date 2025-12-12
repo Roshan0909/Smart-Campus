@@ -992,7 +992,11 @@
                 
                 if (typeof customConfirm === 'undefined') {
                     console.error('customConfirm is not defined!');
-                    alert('Error: Custom confirm dialog not loaded');
+                    showAlertModal({
+                        title: 'Dialog missing',
+                        message: 'Error: Custom confirm dialog not loaded',
+                        type: 'error'
+                    });
                     return;
                 }
                 
@@ -1014,12 +1018,20 @@
                                 localStorage.setItem('quizAnalyticsActiveTab', currentTab);
                                 location.reload();
                             } else {
-                                alert(data.error || 'Failed to toggle quiz status');
+                                showAlertModal({
+                                    title: 'Update failed',
+                                    message: data.error || 'Failed to toggle quiz status',
+                                    type: 'error'
+                                });
                             }
                         })
                         .catch(error => {
                             console.error('Error:', error);
-                            alert('An error occurred while updating quiz status');
+                            showAlertModal({
+                                title: 'Network error',
+                                message: 'An error occurred while updating quiz status',
+                                type: 'error'
+                            });
                         });
                     }
                 });

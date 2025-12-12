@@ -146,7 +146,11 @@ document.getElementById('previewBtn').addEventListener('click', async function()
     const subject_context = subjectSelect.options[subjectSelect.selectedIndex].text;
     
     if (!topic || !difficulty || !subject_context) {
-        alert('Please fill in all required fields');
+        showAlertModal({
+            title: 'Required fields missing',
+            message: 'Please fill in all required fields before generating a preview.',
+            type: 'warning'
+        });
         return;
     }
     
@@ -227,10 +231,18 @@ document.getElementById('previewBtn').addEventListener('click', async function()
             document.getElementById('previewContent').innerHTML = html;
             document.getElementById('previewSection').style.display = 'block';
         } else {
-            alert('Error: ' + data.error);
+            showAlertModal({
+                title: 'Preview failed',
+                message: 'Error: ' + data.error,
+                type: 'error'
+            });
         }
     } catch (error) {
-        alert('Failed to generate preview: ' + error.message);
+        showAlertModal({
+            title: 'Network error',
+            message: 'Failed to generate preview: ' + error.message,
+            type: 'error'
+        });
     } finally {
         document.getElementById('loadingIndicator').style.display = 'none';
     }

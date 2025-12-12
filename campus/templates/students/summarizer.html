@@ -754,7 +754,11 @@
         const file = fileInput.files[0];
         
         if (!text && !file) {
-            alert('Please enter text or upload a file');
+            showAlertModal({
+                title: 'Add content first',
+                message: 'Please enter text or upload a file to summarize.',
+                type: 'warning'
+            });
             return;
         }
         

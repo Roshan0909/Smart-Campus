@@ -579,6 +579,113 @@
                 window._confirmCallback = null;
             }
         };
+
+        // Modern alert/confirm helpers (promise-based)
+        (function() {
+            const ICONS = { info: 'bi-info-circle', success: 'bi-check-circle', warning: 'bi-exclamation-triangle', error: 'bi-exclamation-octagon' };
+
+            function ensureDialogStyles() {
+                if (document.getElementById('teacher-dialog-styles')) return;
+                const style = document.createElement('style');
+                style.id = 'teacher-dialog-styles';
+                style.textContent = `
+                .dialog-overlay { position: fixed; inset: 0; background: rgba(15, 23, 42, 0.45); backdrop-filter: blur(2px); z-index: 12000; opacity: 0; transition: opacity 0.2s ease; }
+                .dialog-overlay.show { opacity: 1; }
+                .dialog-box { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -46%); min-width: 320px; max-width: 520px; background: #0f172a; color: #e2e8f0; border-radius: 12px; padding: 20px 22px; box-shadow: 0 18px 60px rgba(0,0,0,0.25); z-index: 12001; opacity: 0; scale: 0.96; transition: opacity 0.22s ease, scale 0.22s ease; border: 1px solid rgba(148, 163, 184, 0.2); }
+                .dialog-box.show { opacity: 1; scale: 1; transform: translate(-50%, -50%); }
+                .dialog-head { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+                .dialog-icon { width: 44px; height: 44px; border-radius: 12px; display: grid; place-items: center; font-size: 22px; }
+                .dialog-title { font-weight: 800; letter-spacing: -0.2px; }
+                .dialog-message { color: #cbd5e1; margin: 6px 0 14px; white-space: pre-wrap; line-height: 1.4; }
+                .dialog-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 6px; }
+                .dialog-btn { border: none; border-radius: 10px; padding: 10px 14px; font-weight: 700; cursor: pointer; transition: transform 0.15s ease, box-shadow 0.15s ease; }
+                .dialog-btn:hover { transform: translateY(-1px); }
+                .dialog-btn.primary { background: linear-gradient(135deg, #06b6d4, #0891b2); color: #fff; box-shadow: 0 10px 30px rgba(6,182,212,0.25); }
+                .dialog-btn.secondary { background: #1e293b; color: #e2e8f0; border: 1px solid rgba(148,163,184,0.25); }
+                .dialog-btn.danger { background: linear-gradient(135deg, #ef4444, #dc2626); color: #fff; box-shadow: 0 10px 30px rgba(239,68,68,0.25); }
+                @media (max-width: 480px) { .dialog-box { width: calc(100% - 32px); min-width: unset; } }
+                `;
+                document.head.appendChild(style);
+            }
+
+            function createDialog({ title = 'Notice', message = '', type = 'info', confirmText = 'OK', cancelText = 'Cancel', showCancel = false, danger = false }) {
+                ensureDialogStyles();
+                const overlay = document.createElement('div');
+                overlay.className = 'dialog-overlay';
+                const dialog = document.createElement('div');
+                dialog.className = 'dialog-box';
+
+                const icon = ICONS[type] || ICONS.info;
+                const iconBg = type === 'error' ? 'rgba(248,113,113,0.18)' : type === 'warning' ? 'rgba(251,191,36,0.15)' : type === 'success' ? 'rgba(52,211,153,0.16)' : 'rgba(59,130,246,0.15)';
+                const iconColor = type === 'error' ? '#f87171' : type === 'warning' ? '#f59e0b' : type === 'success' ? '#34d399' : '#38bdf8';
+
+                dialog.innerHTML = `
+                    <div class="dialog-head">
+                        <div class="dialog-icon" style="background:${iconBg}; color:${iconColor};"><i class="bi ${icon}"></i></div>
+                        <div class="dialog-title">${title}</div>
+                    </div>
+                    <div class="dialog-message">${message}</div>
+                    <div class="dialog-actions"></div>
+                `;
+
+                const actions = dialog.querySelector('.dialog-actions');
+                if (showCancel) {
+                    const cancelBtn = document.createElement('button');
+                    cancelBtn.className = 'dialog-btn secondary';
+                    cancelBtn.textContent = cancelText;
+                    actions.appendChild(cancelBtn);
+                    cancelBtn.addEventListener('click', () => resolveDialog(false));
+                }
+
+                const confirmBtn = document.createElement('button');
+                confirmBtn.className = `dialog-btn ${danger ? 'danger' : 'primary'}`;
+                confirmBtn.textContent = confirmText;
+                actions.appendChild(confirmBtn);
+
+                function resolveDialog(result) {
+                    overlay.remove();
+                    dialog.remove();
+                    cleanup();
+                    resolver(result);
+                }
+
+                function cleanup() {
+                    document.removeEventListener('keydown', onKey);
+                }
+
+                function onKey(e) {
+                    if (e.key === 'Escape') {
+                        if (showCancel) resolveDialog(false); else resolveDialog(true);
+                    }
+                }
+
+                function openDialog() {
+                    document.body.appendChild(overlay);
+                    document.body.appendChild(dialog);
+                    requestAnimationFrame(() => {
+                        overlay.classList.add('show');
+                        dialog.classList.add('show');
+                    });
+                }
+
+                overlay.addEventListener('click', () => { if (showCancel) resolveDialog(false); });
+                confirmBtn.addEventListener('click', () => resolveDialog(true));
+                document.addEventListener('keydown', onKey);
+
+                let resolver;
+                const promise = new Promise((resolve) => { resolver = resolve; });
+                openDialog();
+                return promise;
+            }
+
+            window.showAlertModal = function({ title = 'Notice', message = '', type = 'info', confirmText = 'OK' } = {}) {
+                return createDialog({ title, message, type, confirmText, showCancel: false });
+            };
+
+            window.showConfirmModal = function({ title = 'Are you sure?', message = '', type = 'warning', confirmText = 'Confirm', cancelText = 'Cancel', danger = false } = {}) {
+                return createDialog({ title, message, type, confirmText, cancelText, showCancel: true, danger });
+            };
+        })();
     </script>
 </body>
 </html>

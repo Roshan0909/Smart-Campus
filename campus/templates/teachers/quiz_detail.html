@@ -202,12 +202,20 @@
                     if (data.success) {
                         location.reload();
                     } else {
-                        alert(data.error || 'Failed to toggle quiz status');
+                        showAlertModal({
+                            title: 'Update failed',
+                            message: data.error || 'Failed to toggle quiz status',
+                            type: 'error'
+                        });
                     }
                 })
                 .catch(error => {
                     console.error('Error:', error);
-                    alert('An error occurred while updating quiz status');
+                    showAlertModal({
+                        title: 'Network error',
+                        message: 'An error occurred while updating quiz status',
+                        type: 'error'
+                    });
                 });
             }
         });
@@ -329,7 +337,11 @@
         
         // Copy to clipboard
         navigator.clipboard.writeText(text).then(function() {
-            alert('Quiz content copied to clipboard!');
+                showAlertModal({
+                    title: 'Copied',
+                    message: 'Quiz content copied to clipboard!',
+                    type: 'success'
+                });
         }, function(err) {
             // Fallback for older browsers
             const textarea = document.createElement('textarea');
@@ -340,9 +352,17 @@
             textarea.select();
             try {
                 document.execCommand('copy');
-                alert('Quiz content copied to clipboard!');
+                    showAlertModal({
+                        title: 'Copied',
+                        message: 'Quiz content copied to clipboard!',
+                        type: 'success'
+                    });
             } catch (e) {
-                alert('Failed to copy. Please try again.');
+                    showAlertModal({
+                        title: 'Copy failed',
+                        message: 'Failed to copy. Please try again.',
+                        type: 'error'
+                    });
             }
             document.body.removeChild(textarea);
         });

@@ -71,8 +71,8 @@
                                         <i class="fas fa-chart-bar"></i>
                                     </a>
                                     <a href="{% url 'delete_coding_problem' problem.id %}" 
-                                       class="btn btn-danger btn-sm"
-                                       onclick="return confirm('Delete this problem?')">
+                                       class="btn btn-danger btn-sm delete-problem-link"
+                                       data-problem-title="{{ problem.title }}">
                                         <i class="fas fa-trash"></i>
                                     </a>
                                 </td>
@@ -100,4 +100,26 @@
         background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     }
 </style>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    document.querySelectorAll('.delete-problem-link').forEach(link => {
+        link.addEventListener('click', async function(e) {
+            e.preventDefault();
+            const title = this.dataset.problemTitle || 'this problem';
+            const confirmed = await showConfirmModal({
+                title: 'Delete problem?',
+                message: `Are you sure you want to delete "${title}"? This cannot be undone.`,
+                type: 'warning',
+                confirmText: 'Delete',
+                cancelText: 'Cancel',
+                danger: true
+            });
+            if (confirmed) {
+                window.location.href = this.href;
+            }
+        });
+    });
+});
+</script>
 {% endblock %}

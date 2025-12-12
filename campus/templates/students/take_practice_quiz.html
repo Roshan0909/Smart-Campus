@@ -136,7 +136,7 @@ function updateProgress() {
     document.getElementById('progressText').textContent = `${answered} / ${totalQuestions} answered`;
 }
 
-function submitQuiz() {
+async function submitQuiz() {
     // Check if all questions are answered
     let answered = 0;
     for (let i = 0; i < totalQuestions; i++) {
@@ -150,9 +150,14 @@ function submitQuiz() {
     }
     
     if (answered < totalQuestions) {
-        if (!confirm(`You have only answered ${answered} out of ${totalQuestions} questions.\n\nDo you want to submit anyway?`)) {
-            return;
-        }
+        const confirmed = await showConfirmModal({
+            title: 'Submit incomplete quiz?',
+            message: `You have only answered ${answered} out of ${totalQuestions} questions.\n\nDo you want to submit anyway?`,
+            type: 'warning',
+            confirmText: 'Submit Anyway',
+            cancelText: 'Keep Answering'
+        });
+        if (!confirmed) return;
     }
     
     // Collect answers
@@ -187,14 +192,22 @@ function submitQuiz() {
         if (data.success) {
             displayResults(data);
         } else {
-            alert('Error: ' + (data.error || 'Failed to submit quiz'));
+            showAlertModal({
+                title: 'Submission failed',
+                message: 'Error: ' + (data.error || 'Failed to submit quiz'),
+                type: 'error'
+            });
             btn.disabled = false;
             btn.innerHTML = originalText;
         }
     })
     .catch(error => {
         console.error('Error:', error);
-        alert('Error submitting quiz: ' + error.message);
+        showAlertModal({
+            title: 'Network error',
+            message: 'Error submitting quiz: ' + error.message,
+            type: 'error'
+        });
         btn.disabled = false;
         btn.innerHTML = originalText;
     });
