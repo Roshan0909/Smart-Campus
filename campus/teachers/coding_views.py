@@ -11,6 +11,7 @@ from datetime import timedelta
 import json
 import google.generativeai as genai
 from django.conf import settings
+import re
 
 from .models_coding import CodingProblem, CodingAssignment, TestCase
 from .models import Subject
@@ -107,6 +108,13 @@ Requirements:
 - Include at least 2 visible test cases and 2 hidden test cases
 - Starter code should have proper function signatures
 - {difficulty} difficulty level
+- For functions with multiple parameters, provide inputs on separate lines (one parameter per line)
+- Example: if function takes (arr, target), input should be:
+  {{
+    "input": "1 2 3\\n5",
+    "output": "2"
+  }}
+  where first line is the array and second line is the target value
 - Related to {topic}
 """
         
@@ -119,7 +127,26 @@ Requirements:
         elif '```' in response_text:
             response_text = response_text.split('```')[1].split('```')[0].strip()
         
-        problem_data = json.loads(response_text)
+        # Try direct parse if it already starts with JSON
+        trimmed = response_text.strip()
+        if trimmed.startswith('{') or trimmed.startswith('['):
+            try:
+                problem_data = json.loads(trimmed)
+                return JsonResponse({'success': True, 'problem': problem_data})
+            except Exception:
+                pass
+        
+        # Extract first JSON object or array to avoid trailing text from model
+        json_match = re.search(r'(\{[\s\S]*\}|\[[\s\S]*\])', response_text)
+        if not json_match:
+            return JsonResponse({
+                'success': False,
+                'error': 'Failed to parse AI response: no JSON object found',
+                'raw_response': response_text[:500]
+            })
+        
+        json_str = json_match.group().strip()
+        problem_data = json.loads(json_str)
         
         return JsonResponse({
             'success': True,
@@ -130,7 +157,7 @@ Requirements:
         return JsonResponse({
             'success': False,
             'error': f'Failed to parse AI response: {str(e)}',
-            'raw_response': response_text[:500] if 'response_text' in locals() else ''
+            'raw_response': json_str[:500] if 'json_str' in locals() and json_str else (response_text[:500] if 'response_text' in locals() else '')
         })
     except Exception as e:
         return JsonResponse({

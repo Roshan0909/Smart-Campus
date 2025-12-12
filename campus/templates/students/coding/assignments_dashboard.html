@@ -479,9 +479,9 @@
             <div class="assignment-main-info">
                 <h5 class="assignment-title">
                     {{ item.assignment.problem.title }}
-                    <span class="status-badge {% if item.solved %}status-solved{% elif item.attempted %}status-progress{% else %}status-new{% endif %}">
-                        <i class="bi bi-{% if item.solved %}check-circle{% elif item.attempted %}clock-history{% else %}circle{% endif %}"></i>
-                        {% if item.solved %}Solved{% elif item.attempted %}In Progress{% else %}New{% endif %}
+                    <span class="status-badge {% if item.attempted or item.completed %}status-solved{% else %}status-new{% endif %}">
+                        <i class="bi bi-{% if item.attempted or item.completed %}check-circle{% else %}circle{% endif %}"></i>
+                        {% if item.attempted or item.completed %}✓ Submitted{% else %}New{% endif %}
                     </span>
                 </h5>
                 

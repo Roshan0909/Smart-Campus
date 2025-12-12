@@ -19,7 +19,7 @@ class AIModelManager:
         if self.gemini_api_key:
             try:
                 genai.configure(api_key=self.gemini_api_key)
-                self.gemini_model = genai.GenerativeModel('gemini-2.0-flash-exp')
+                self.gemini_model = genai.GenerativeModel('gemini-2.5-flash-lite')
             except Exception as e:
                 print(f"Failed to configure Gemini: {e}")
                 self.use_gemini = False
