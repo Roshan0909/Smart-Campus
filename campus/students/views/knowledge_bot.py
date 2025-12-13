@@ -90,7 +90,7 @@ def search_wikipedia(query):
     try:
         # Add campus directory to path for ai_fallback import
         sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(__file__))))
-        from ai_fallback import generate_content
+        from utils.ai_fallback import generate_content
         
         topic_prompt = f"""Extract the main topic/concept that should be searched on Wikipedia from this question.
 Return ONLY the search term(s) that would find the most relevant Wikipedia article.
@@ -206,7 +206,7 @@ def generate_knowledge_answer(question, wiki_context, history_context=""):
         
         # Add campus directory to path for ai_fallback import
         sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(__file__))))
-        from ai_fallback import generate_content
+        from utils.ai_fallback import generate_content
         
         # Load .env from the campus directory
         env_path = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), '.env')

@@ -8,7 +8,7 @@ import sys
 
 # Add campus directory to path for ai_fallback import
 sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
-from ai_fallback import generate_content
+from utils.ai_fallback import generate_content
 
 def summarize_text(text, summary_type="concise"):
     """Summarize text using Gemini AI"""

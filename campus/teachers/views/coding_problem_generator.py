@@ -3,7 +3,7 @@ AI-powered coding problem generator using Gemini
 """
 import json
 import re
-from ai_fallback import generate_content
+from utils.ai_fallback import generate_content
 
 
 def generate_coding_problem(topic, difficulty='medium', language='python', subject_context=''):
