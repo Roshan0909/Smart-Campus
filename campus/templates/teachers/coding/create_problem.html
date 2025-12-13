@@ -424,9 +424,9 @@ let generatedProblem = null;
 function showAlert(message, type = 'info', title = 'Notice') {
     const iconMap = {
         'info': 'ℹ️',
-        'warning': '⚠️',
-        'error': '❌',
-        'success': '✅'
+        'warning': '',
+        'error': '',
+        'success': ''
     };
     
     const overlay = document.createElement('div');
@@ -453,7 +453,7 @@ function showAlert(message, type = 'info', title = 'Notice') {
 
 function showConfirm(options) {
     return new Promise((resolve) => {
-        const { title = 'Confirm', message = 'Are you sure?', confirmText = 'Yes', cancelText = 'Cancel', icon = '❓', type = 'confirm' } = options;
+        const { title = 'Confirm', message = 'Are you sure?', confirmText = 'Yes', cancelText = 'Cancel', type = 'confirm' } = options;
         
         const overlay = document.createElement('div');
         overlay.className = 'dialog-overlay';
@@ -464,7 +464,6 @@ function showConfirm(options) {
         modal.id = 'confirmModal';
         modal.innerHTML = `
             <div class="dialog-header ${type}">
-                <div class="dialog-icon">${icon}</div>
                 <h3 class="dialog-title">${title}</h3>
             </div>
             <div class="dialog-body">
@@ -594,7 +593,7 @@ async function saveProblem() {
         const data = await response.json();
 
         if (data.success) {
-            showAlert('Problem saved successfully!<br><br>Redirecting to problems list...', 'success', '✅ Saved');
+            showAlert('Problem saved successfully!<br><br>Redirecting to problems list...', 'success', 'Saved');
             setTimeout(() => {
                 window.location.href = '{% url "teacher_coding_problems" %}';
             }, 1500);

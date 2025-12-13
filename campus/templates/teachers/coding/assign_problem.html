@@ -243,9 +243,9 @@ document.getElementById('deadline').value = dateStr;
 function showAlert(message, type = 'info', title = 'Notice') {
     const iconMap = {
         'info': 'ℹ️',
-        'warning': '⚠️',
-        'error': '❌',
-        'success': '✅'
+        'warning': '',
+        'error': '',
+        'success': ''
     };
     
     const overlay = document.createElement('div');
@@ -272,7 +272,7 @@ function showAlert(message, type = 'info', title = 'Notice') {
 
 function showConfirm(options) {
     return new Promise((resolve) => {
-        const { title = 'Confirm', message = 'Are you sure?', confirmText = 'Yes', cancelText = 'Cancel', icon = '❓', type = 'confirm' } = options;
+        const { title = 'Confirm', message = 'Are you sure?', confirmText = 'Yes', cancelText = 'Cancel', type = 'confirm' } = options;
         
         const overlay = document.createElement('div');
         overlay.className = 'dialog-overlay';
@@ -283,7 +283,6 @@ function showConfirm(options) {
         modal.id = 'confirmModal';
         modal.innerHTML = `
             <div class="dialog-header ${type}">
-                <div class="dialog-icon">${icon}</div>
                 <h3 class="dialog-title">${title}</h3>
             </div>
             <div class="dialog-body">
@@ -323,7 +322,7 @@ async function createAssignment() {
         message: `Create assignment "<strong>${title}</strong>"?<br><br>Students will be notified and can start solving the problem.`,
         confirmText: 'Create',
         cancelText: 'Cancel',
-        icon: '📋',
+        icon: '',
         type: 'confirm'
     });
     
@@ -348,7 +347,7 @@ async function createAssignment() {
         const data = await response.json();
 
         if (data.success) {
-            showAlert('Assignment created successfully!<br><br>Students can now see and solve this problem.', 'success', '✅ Assignment Created');
+            showAlert('Assignment created successfully!<br><br>Students can now see and solve this problem.', 'success', 'Assignment Created');
             setTimeout(() => {
                 window.location.href = '{% url "teacher_coding_assignments" %}';
             }, 1500);

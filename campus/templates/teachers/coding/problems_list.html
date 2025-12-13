@@ -374,7 +374,7 @@
 // STYLED DIALOG FUNCTIONS
 // ============================================
 function showAlert(message, type = 'info', title = 'Notice') {
-    const iconMap = { 'info': 'ℹ️', 'warning': '⚠️', 'error': '❌', 'success': '✅' };
+    const iconMap = { 'info': '', 'warning': '', 'error': '', 'success': '' };
     
     const overlay = document.createElement('div');
     overlay.className = 'dialog-overlay';
@@ -400,7 +400,7 @@ function showAlert(message, type = 'info', title = 'Notice') {
 
 function showConfirm(options) {
     return new Promise((resolve) => {
-        const { title = 'Confirm', message = 'Are you sure?', confirmText = 'Yes', cancelText = 'Cancel', icon = '❓', type = 'confirm' } = options;
+        const { title = 'Confirm', message = 'Are you sure?', confirmText = 'Yes', cancelText = 'Cancel', type = 'confirm' } = options;
         
         const overlay = document.createElement('div');
         overlay.className = 'dialog-overlay';
@@ -409,7 +409,6 @@ function showConfirm(options) {
         modal.className = 'dialog-modal';
         modal.innerHTML = `
             <div class="dialog-header ${type}">
-                <div class="dialog-icon">${icon}</div>
                 <h3 class="dialog-title">${title}</h3>
             </div>
             <div class="dialog-body">
@@ -435,11 +434,10 @@ function closeDialog() {
 
 async function deleteProblem(problemId) {
     const confirmed = await showConfirm({
-        title: '🗑️ Delete Problem',
-        message: 'Are you sure you want to delete this problem?<br><br><strong>This action cannot be undone!</strong>',
+        title: 'Delete Problem',
+        message: 'Are you sure you want to delete this problem?<br><br>This action cannot be undone!',
         confirmText: 'Delete',
         cancelText: 'Cancel',
-        icon: '⚠️',
         type: 'warning'
     });
     
@@ -466,7 +464,7 @@ async function deleteProblem(problemId) {
         const data = await response.json();
 
         if (data.success) {
-            showAlert('Problem deleted successfully!', 'success', '✅ Deleted');
+            showAlert('Problem deleted successfully!', 'success', 'Deleted');
             setTimeout(() => location.reload(), 1000);
         } else {
             showAlert('Error: ' + data.error, 'error', 'Delete Failed');
