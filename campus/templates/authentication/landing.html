@@ -1,0 +1,532 @@
+{% extends 'base.html' %}
+
+{% block title %}Welcome - Smart Campus{% endblock %}
+
+{% block content %}
+</div><!-- Close base container -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+<div class="landing-page">
+    <header class="hero">
+        <div class="hero-bg">
+            <div class="glow orb-1"></div>
+            <div class="glow orb-2"></div>
+            <div class="glow orb-3"></div>
+            <div class="grid"></div>
+            <div class="gradient-overlay"></div>
+            <div class="particles">
+                <div class="particle"></div>
+                <div class="particle"></div>
+                <div class="particle"></div>
+                <div class="particle"></div>
+                <div class="particle"></div>
+            </div>
+        </div>
+        <div class="hero-inner container-fluid">
+            <div class="row align-items-center g-5">
+                <div class="col-lg-6 hero-copy">
+                    <div class="badge-cluster">
+                        <span class="badge-floating badge-1"><i class="bi bi-stars"></i> AI-Powered</span>
+                        <span class="badge-floating badge-2"><i class="bi bi-lightning-charge"></i> Fast</span>
+                        <span class="badge-floating badge-3"><i class="bi bi-shield-check"></i> Secure</span>
+                    </div>
+                    <h1 class="hero-title">
+                        <span class="title-main">Smart Campus</span>
+                        <span class="title-gradient">Transform Learning with AI</span>
+                    </h1>
+                    <p class="hero-subtitle">The ultimate platform for students and teachers—powered by cutting-edge AI to make learning faster, smarter, and more engaging.</p>
+                    
+                    <div class="cta-row">
+                        <a href="{% url 'login' %}" class="btn-hero btn-hero-primary">
+                            <span class="btn-shine"></span>
+                            <i class="bi bi-box-arrow-in-right"></i>
+                            <span>Launch platform</span>
+                        </a>
+                    </div>
+                </div>
+                <div class="col-lg-6 hero-visual">
+                    <div class="hero-illustration">
+                        <div class="background-pattern">
+                            <div class="pattern-dot"></div>
+                            <div class="pattern-dot"></div>
+                            <div class="pattern-dot"></div>
+                            <div class="pattern-dot"></div>
+                            <div class="pattern-dot"></div>
+                            <div class="pattern-dot"></div>
+                        </div>
+                        <div class="center-showcase">
+                            <div class="showcase-glow"></div>
+                            <div class="showcase-ring ring-1"></div>
+                            <div class="showcase-ring ring-2"></div>
+                            <div class="showcase-ring ring-3"></div>
+                            <div class="showcase-core">
+                                <i class="bi bi-mortarboard-fill"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <section id="features" class="features container-fluid">
+        <div class="section-head">
+            <p class="eyebrow">Platform capabilities</p>
+            <h2>Everything you need for modern learning</h2>
+        </div>
+        <div class="row g-4">
+            <div class="col-lg-3 col-md-6">
+                <div class="feature-card">
+                    <div class="icon gradient-1"><i class="bi bi-chat-square-dots"></i></div>
+                    <h3>PDF chat</h3>
+                    <p>Upload any document and get instant, context-aware answers with full chat history.</p>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6">
+                <div class="feature-card">
+                    <div class="icon gradient-2"><i class="bi bi-card-heading"></i></div>
+                    <h3>AI flashcards</h3>
+                    <p>Generate study flashcards from your notes automatically using AI.</p>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6">
+                <div class="feature-card">
+                    <div class="icon gradient-3"><i class="bi bi-braces"></i></div>
+                    <h3>Code arena</h3>
+                    <p>Practice coding problems with instant test feedback and submission tracking.</p>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6">
+                <div class="feature-card">
+                    <div class="icon gradient-4"><i class="bi bi-shield-check"></i></div>
+                    <h3>Proctored quizzes</h3>
+                    <p>Integrity-first assessments with automated monitoring and detailed reports.</p>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6">
+                <div class="feature-card">
+                    <div class="icon gradient-5"><i class="bi bi-file-earmark-text"></i></div>
+                    <h3>AI summarizer</h3>
+                    <p>Get concise summaries of lengthy documents to accelerate learning.</p>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6">
+                <div class="feature-card">
+                    <div class="icon gradient-6"><i class="bi bi-graph-up-arrow"></i></div>
+                    <h3>Analytics & reports</h3>
+                    <p>Track performance with detailed analytics, exportable as PDF or Excel.</p>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6">
+                <div class="feature-card">
+                    <div class="icon gradient-7"><i class="bi bi-people"></i></div>
+                    <h3>Collaboration</h3>
+                    <p>Chat with peers and teachers, share notes, and learn together.</p>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6">
+                <div class="feature-card">
+                    <div class="icon gradient-8"><i class="bi bi-trophy"></i></div>
+                    <h3>Leaderboard</h3>
+                    <p>Track your progress and compete with classmates in coding challenges.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="workflow container-fluid">
+        <div class="section-head">
+            <p class="eyebrow">How it works</p>
+            <h2>Seamless learning in three simple steps</h2>
+        </div>
+        <div class="row g-4 justify-content-center">
+            <div class="col-lg-4 col-md-6">
+                <div class="workflow-card">
+                    <div class="step-number">1</div>
+                    <h3>Upload & organize</h3>
+                    <p>Teachers upload course materials, create assignments, and design quizzes. Everything is organized by subject.</p>
+                </div>
+            </div>
+            <div class="col-lg-4 col-md-6">
+                <div class="workflow-card">
+                    <div class="step-number">2</div>
+                    <h3>Learn & practice</h3>
+                    <p>Students access notes, chat with AI for clarification, generate flashcards, solve coding problems, and take quizzes.</p>
+                </div>
+            </div>
+            <div class="col-lg-4 col-md-6">
+                <div class="workflow-card">
+                    <div class="step-number">3</div>
+                    <h3>Track & improve</h3>
+                    <p>Both teachers and students monitor progress through detailed reports, identify weak areas, and optimize learning strategies.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="roles container-fluid">
+        <div class="section-head">
+            <p class="eyebrow">Built for everyone</p>
+            <h2>Tailored experiences for students and teachers</h2>
+        </div>
+        <div class="row g-4">
+            <div class="col-lg-6">
+                <div class="role-card">
+                    <div class="role-header">
+                        <div class="role-icon student"><i class="bi bi-mortarboard"></i></div>
+                        <h3>For students</h3>
+                    </div>
+                    <ul class="role-features">
+                        <li><i class="bi bi-check-circle-fill"></i> Access all course materials in one place</li>
+                        <li><i class="bi bi-check-circle-fill"></i> Chat with PDFs to get instant answers</li>
+                        <li><i class="bi bi-check-circle-fill"></i> Generate AI-powered flashcards for revision</li>
+                        <li><i class="bi bi-check-circle-fill"></i> Practice coding with automated test cases</li>
+                        <li><i class="bi bi-check-circle-fill"></i> Take proctored quizzes with integrity monitoring</li>
+                        <li><i class="bi bi-check-circle-fill"></i> Track your performance on the leaderboard</li>
+                        <li><i class="bi bi-check-circle-fill"></i> Collaborate with peers through chat</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <div class="role-card">
+                    <div class="role-header">
+                        <div class="role-icon teacher"><i class="bi bi-person-workspace"></i></div>
+                        <h3>For teachers</h3>
+                    </div>
+                    <ul class="role-features">
+                        <li><i class="bi bi-check-circle-fill"></i> Manage subjects and upload course materials</li>
+                        <li><i class="bi bi-check-circle-fill"></i> Create custom coding assignments with test cases</li>
+                        <li><i class="bi bi-check-circle-fill"></i> Generate AI-powered quiz questions automatically</li>
+                        <li><i class="bi bi-check-circle-fill"></i> Assign quizzes with proctoring enabled</li>
+                        <li><i class="bi bi-check-circle-fill"></i> Review student submissions and performance</li>
+                        <li><i class="bi bi-check-circle-fill"></i> Export detailed reports as PDF or Excel</li>
+                        <li><i class="bi bi-check-circle-fill"></i> Monitor class progress with analytics</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="security container-fluid">
+        <div class="row g-4 align-items-center">
+            <div class="col-lg-6">
+                <div class="security-content">
+                    <p class="eyebrow">Security & integrity</p>
+                    <h2>Built with trust at the core</h2>
+                    <p class="lede">Smart Campus ensures academic integrity and data security with advanced proctoring, role-based access, and AI safeguards.</p>
+                    <div class="security-features">
+                        <div class="security-item">
+                            <div class="security-icon"><i class="bi bi-camera-video"></i></div>
+                            <div>
+                                <h4>Quiz proctoring</h4>
+                                <p>Automated snapshot capture during quiz attempts to maintain integrity</p>
+                            </div>
+                        </div>
+                        <div class="security-item">
+                            <div class="security-icon"><i class="bi bi-lock"></i></div>
+                            <div>
+                                <h4>Role-based access</h4>
+                                <p>Separate dashboards and permissions for students and teachers</p>
+                            </div>
+                        </div>
+                        <div class="security-item">
+                            <div class="security-icon"><i class="bi bi-shield-check"></i></div>
+                            <div>
+                                <h4>AI safety controls</h4>
+                                <p>Content filtering and safety settings on all AI-generated responses</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <div class="security-visual">
+                    <div class="shield-graphic">
+                        <i class="bi bi-shield-fill-check"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="benefits container-fluid">
+        <div class="section-head">
+            <p class="eyebrow">Why choose Smart Campus</p>
+            <h2>A complete learning ecosystem</h2>
+        </div>
+        <div class="row g-4">
+            <div class="col-lg-3 col-md-6">
+                <div class="benefit-card">
+                    <div class="benefit-icon"><i class="bi bi-lightning-charge"></i></div>
+                    <h3>AI-powered</h3>
+                    <p>Leverage cutting-edge AI for flashcards, summaries, quiz generation, and intelligent tutoring.</p>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6">
+                <div class="benefit-card">
+                    <div class="benefit-icon"><i class="bi bi-clock-history"></i></div>
+                    <h3>Time-saving</h3>
+                    <p>Automate repetitive tasks like quiz creation, grading, and flashcard generation to focus on learning.</p>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6">
+                <div class="benefit-card">
+                    <div class="benefit-icon"><i class="bi bi-bar-chart"></i></div>
+                    <h3>Data-driven</h3>
+                    <p>Make informed decisions with detailed analytics, performance tracking, and exportable reports.</p>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6">
+                <div class="benefit-card">
+                    <div class="benefit-icon"><i class="bi bi-globe"></i></div>
+                    <h3>Accessible</h3>
+                    <p>Access your learning materials anytime, anywhere with a modern, responsive web interface.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="cta-final container-fluid">
+        <div class="cta-final-card">
+            <h2>Ready to transform your learning experience?</h2>
+            <p>Join Smart Campus today and experience the future of education with AI-powered tools, seamless collaboration, and comprehensive analytics.</p>
+            <a href="{% url 'login' %}" class="btn btn-primary btn-lg"><i class="bi bi-box-arrow-in-right"></i> Get started now</a>
+        </div>
+    </section>
+</div>
+
+<style>
+:root {
+    --bg: #050712;
+    --surface: rgba(255, 255, 255, 0.06);
+    --border: rgba(255, 255, 255, 0.1);
+    --text: #e2e8f0;
+    --muted: #94a3b8;
+    --accent: #06b6d4;
+}
+
+* { box-sizing: border-box; }
+html, body { height: 100%; }
+body { background: var(--bg); color: var(--text); font-family: 'Space Grotesk', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; overflow-x: hidden; }
+.container { display: none; }
+nav.navbar { display: none; }
+
+.landing-page { position: relative; min-height: 100vh; overflow: hidden; background: radial-gradient(circle at 10% 10%, rgba(124, 58, 237, 0.12), transparent 28%), radial-gradient(circle at 80% 20%, rgba(6, 182, 212, 0.16), transparent 32%), radial-gradient(circle at 30% 80%, rgba(6, 182, 212, 0.08), transparent 30%), #050712; }
+
+.hero { position: relative; padding: 100px 0 60px; min-height: 100vh; display: flex; align-items: center; justify-content: center; }
+.hero-bg { position: absolute; inset: 0; overflow: hidden; }
+.grid { position: absolute; inset: -20%; background-size: 120px 120px; background-image: linear-gradient(rgba(255,255,255,0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.05) 1px, transparent 1px); opacity: 0.25; filter: blur(2px); animation: float 16s linear infinite; }
+@keyframes float { from { transform: translateX(0); } to { transform: translateX(-60px); } }
+.glow { position: absolute; border-radius: 50%; filter: blur(120px); opacity: 0.8; }
+.orb-1 { width: 420px; height: 420px; background: rgba(6, 182, 212, 0.5); top: -120px; left: -80px; }
+.orb-2 { width: 500px; height: 500px; background: rgba(124, 58, 237, 0.4); bottom: -160px; right: -140px; }
+.orb-3 { width: 380px; height: 380px; background: rgba(34, 197, 94, 0.3); top: 50%; left: 50%; transform: translate(-50%, -50%); }
+.gradient-overlay { position: absolute; inset: 0; background: radial-gradient(circle at 30% 20%, rgba(6,182,212,0.15), transparent 50%), radial-gradient(circle at 70% 80%, rgba(124,58,237,0.15), transparent 50%); }
+.particles { position: absolute; inset: 0; }
+.particle { position: absolute; width: 6px; height: 6px; border-radius: 50%; background: radial-gradient(circle, rgba(6, 182, 212, 0.9), transparent); animation: particleFloat 15s infinite ease-in-out; }
+.particle:nth-child(1) { top: 10%; left: 15%; animation-delay: 0s; }
+.particle:nth-child(2) { top: 30%; right: 20%; animation-delay: 2s; }
+.particle:nth-child(3) { bottom: 25%; left: 25%; animation-delay: 4s; }
+.particle:nth-child(4) { bottom: 15%; right: 15%; animation-delay: 1s; }
+.particle:nth-child(5) { top: 50%; left: 40%; animation-delay: 3s; }
+@keyframes particleFloat { 0%, 100% { transform: translate(0, 0) scale(1); opacity: 0.4; } 50% { transform: translate(30px, -30px) scale(1.5); opacity: 1; } }
+
+.hero-inner { position: relative; z-index: 1; padding: 0 7%; }
+.hero-copy { position: relative; }
+.badge-cluster { display: flex; gap: 12px; margin-bottom: 30px; flex-wrap: wrap; }
+.badge-floating { padding: 10px 16px; border-radius: 999px; background: linear-gradient(135deg, rgba(6,182,212,0.15), rgba(124,58,237,0.15)); border: 1px solid rgba(255,255,255,0.2); backdrop-filter: blur(10px); color: #fff; font-size: 13px; font-weight: 600; display: inline-flex; align-items: center; gap: 8px; animation: badgeFloat 3s ease-in-out infinite; box-shadow: 0 4px 20px rgba(6,182,212,0.3); }
+.badge-floating i { font-size: 16px; }
+.badge-1 { animation-delay: 0s; }
+.badge-2 { animation-delay: 0.5s; }
+.badge-3 { animation-delay: 1s; }
+@keyframes badgeFloat { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
+
+.hero-title { margin: 0 0 24px; }
+.title-main { display: block; font-size: 64px; font-weight: 700; line-height: 1; background: linear-gradient(135deg, #fff 0%, #e2e8f0 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; margin-bottom: 12px; }
+.title-gradient { display: block; font-size: 48px; font-weight: 700; line-height: 1.1; background: linear-gradient(135deg, #06b6d4 0%, #7c3aed 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+.hero-subtitle { color: var(--muted); font-size: 18px; line-height: 1.6; max-width: 540px; margin: 0 0 32px; }
+
+.feature-pills { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; margin-bottom: 32px; max-width: 540px; }
+.feature-pill { padding: 16px 18px; border-radius: 16px; background: rgba(255,255,255,0.06); border: 1px solid var(--border); display: flex; align-items: center; gap: 14px; transition: all 0.3s ease; backdrop-filter: blur(10px); }
+.feature-pill:hover { background: rgba(6,182,212,0.1); border-color: rgba(6,182,212,0.4); transform: translateY(-2px); box-shadow: 0 8px 24px rgba(6,182,212,0.2); }
+.pill-icon { width: 44px; height: 44px; border-radius: 12px; background: linear-gradient(135deg, #06b6d4, #0891b2); display: grid; place-items: center; color: #fff; font-size: 20px; flex-shrink: 0; box-shadow: 0 4px 16px rgba(6,182,212,0.4); }
+.pill-content { display: flex; flex-direction: column; gap: 2px; }
+.pill-label { color: #f8fafc; font-weight: 600; font-size: 15px; }
+.pill-desc { color: var(--muted); font-size: 13px; }
+
+.cta-row { margin-bottom: 24px; }
+.btn-hero { position: relative; padding: 16px 36px; border-radius: 16px; font-size: 17px; font-weight: 700; display: inline-flex; align-items: center; gap: 12px; text-decoration: none; overflow: hidden; transition: all 0.3s ease; }
+.btn-hero-primary { background: linear-gradient(135deg, #06b6d4, #0891b2); color: #fff; border: 2px solid rgba(255,255,255,0.3); box-shadow: 0 8px 32px rgba(6,182,212,0.5), 0 0 0 0 rgba(6,182,212,0.4); animation: btnPulse 2s ease-in-out infinite; }
+.btn-hero:hover { transform: translateY(-3px); box-shadow: 0 12px 40px rgba(6,182,212,0.6); }
+.btn-shine { position: absolute; top: 0; left: -100%; width: 100%; height: 100%; background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent); animation: shine 3s ease-in-out infinite; }
+@keyframes shine { 0% { left: -100%; } 50% { left: 100%; } 100% { left: 100%; } }
+@keyframes btnPulse { 0%, 100% { box-shadow: 0 8px 32px rgba(6,182,212,0.5), 0 0 0 0 rgba(6,182,212,0.4); } 50% { box-shadow: 0 8px 32px rgba(6,182,212,0.5), 0 0 0 10px rgba(6,182,212,0); } }
+
+.trust-bar { display: flex; flex-wrap: wrap; gap: 20px; }
+.trust-item { display: flex; align-items: center; gap: 8px; color: var(--muted); font-size: 14px; }
+.trust-item i { color: #22c55e; font-size: 16px; }
+
+.hero-visual { position: relative; min-height: 500px; display: flex; align-items: center; justify-content: center; }
+
+.hero-illustration { position: relative; width: 100%; max-width: 550px; height: 550px; margin: 0 auto; }
+
+.background-pattern { position: absolute; inset: 0; overflow: hidden; }
+
+.pattern-dot { position: absolute; width: 8px; height: 8px; background: rgba(6,182,212,0.3); border-radius: 50%; animation: dotPulse 3s ease-in-out infinite; }
+
+.pattern-dot:nth-child(1) { top: 15%; left: 10%; animation-delay: 0s; }
+.pattern-dot:nth-child(2) { top: 25%; right: 15%; animation-delay: 0.5s; }
+.pattern-dot:nth-child(3) { bottom: 30%; left: 20%; animation-delay: 1s; }
+.pattern-dot:nth-child(4) { bottom: 20%; right: 10%; animation-delay: 1.5s; }
+.pattern-dot:nth-child(5) { top: 50%; left: 5%; animation-delay: 2s; }
+.pattern-dot:nth-child(6) { top: 60%; right: 8%; animation-delay: 2.5s; }
+
+@keyframes dotPulse { 0%, 100% { opacity: 0.3; transform: scale(1); } 50% { opacity: 0.8; transform: scale(1.5); } }
+
+.pattern-circle { position: absolute; border-radius: 50%; border: 1px solid rgba(6,182,212,0.15); }
+
+.circle-1 { width: 180px; height: 180px; top: 10%; right: 15%; }
+.circle-2 { width: 120px; height: 120px; bottom: 25%; left: 10%; }
+.circle-3 { width: 90px; height: 90px; top: 40%; left: 5%; }
+
+.center-showcase { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 250px; height: 250px; }
+
+.showcase-glow { position: absolute; inset: -40px; background: radial-gradient(circle, rgba(6,182,212,0.25), transparent 70%); animation: glowPulse 4s ease-in-out infinite; }
+@keyframes glowPulse { 0%, 100% { opacity: 0.5; transform: scale(1); } 50% { opacity: 0.8; transform: scale(1.1); } }
+
+.showcase-ring { position: absolute; border-radius: 50%; border: 2px solid rgba(6,182,212,0.2); }
+
+.ring-1 { inset: -30px; border-color: rgba(6,182,212,0.25); }
+.ring-2 { inset: -60px; border-color: rgba(124,58,237,0.2); }
+.ring-3 { inset: -90px; border-color: rgba(6,182,212,0.15); }
+
+.showcase-core { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 140px; height: 140px; background: linear-gradient(135deg, #06b6d4, #0891b2, #7c3aed); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 64px; color: white; box-shadow: 0 0 60px rgba(6,182,212,0.6), 0 20px 60px rgba(0,0,0,0.4); animation: coreFloat 3s ease-in-out infinite; }
+
+@keyframes coreFloat { 0%, 100% { transform: translate(-50%, -50%) scale(1); } 50% { transform: translate(-50%, -50%) scale(1.05); } }
+keyframes cardFloat { 0%, 100% { transform: translateY(0) rotate(0deg); } 50% { transform: translateY(-12px) rotate(1deg); } }
+
+.achievement-header { display: flex; align-items: center; gap: 14px; margin-bottom: 14px; }
+.achievement-icon { width: 50px; height: 50px; border-radius: 14px; display: grid; place-items: center; font-size: 24px; color: #fff; flex-shrink: 0; box-shadow: 0 6px 20px rgba(0,0,0,0.3); }
+.achievement-icon.trophy { background: linear-gradient(135deg, #fbbf24, #f59e0b); }
+.achievement-icon.code { background: linear-gradient(135deg, #8b5cf6, #7c3aed); }
+.achievement-icon.learn { background: linear-gradient(135deg, #06b6d4, #0891b2); }
+.achievement-info { flex: 1; }
+.achievement-title { display: block; color: #f8fafc; font-weight: 700; font-size: 16px; margin-bottom: 2px; }
+.achievement-subtitle { display: block; color: var(--muted); font-size: 13px; }
+.achievement-badge { width: 32px; height: 32px; border-radius: 50%; background: linear-gradient(135deg, #fbbf24, #f59e0b); display: grid; place-items: center; color: #fff; font-size: 16px; animation: badgeSpin 4s linear infinite; }
+.achievement-badge.flame { background: linear-gradient(135deg, #ef4444, #dc2626); }
+@keyframes badgeSpin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+
+.achievement-progress { margin-top: 12px; }
+.progress-bar { width: 100%; height: 10px; border-radius: 999px; background: rgba(255,255,255,0.1); overflow: hidden; margin-bottom: 6px; }
+.progress-fill { height: 100%; background: linear-gradient(90deg, #06b6d4, #22c55e); border-radius: 999px; animation: progressGlow 2s ease-in-out infinite; }
+@keyframes progressGlow { 0%, 100% { box-shadow: 0 0 10px rgba(6,182,212,0.5); } 50% { box-shadow: 0 0 20px rgba(6,182,212,0.8); } }
+.progress-text { color: var(--muted); font-size: 12px; }
+
+.stat-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-top: 12px; }
+.stat-item { text-align: center; padding: 10px; border-radius: 10px; background: rgba(255,255,255,0.05); }
+.stat-value { display: block; font-size: 22px; font-weight: 700; color: #f8fafc; margin-bottom: 2px; }
+.stat-label { display: block; font-size: 12px; color: var(--muted); }
+
+.streak-counter { display: flex; align-items: center; gap: 6px; padding: 6px 12px; border-radius: 999px; background: linear-gradient(135deg, #f59e0b, #f97316); color: #fff; font-weight: 700; font-size: 16px; }
+.streak-days { display: flex; gap: 6px; margin-top: 12px; }
+.day { width: 32px; height: 32px; border-radius: 8px; background: rgba(255,255,255,0.1); display: grid; place-items: center; color: var(--muted); font-size: 14px; }
+.day.active { background: linear-gradient(135deg, #22c55e, #10b981); color: #fff; animation: dayPop 0.5s ease-out; }
+@keyframes dayPop { from { transform: scale(0.8); } to { transform: scale(1); } }
+
+.floating-stats { position: absolute; }
+.floating-stat { position: absolute; padding: 10px 16px; border-radius: 12px; background: rgba(255,255,255,0.1); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.2); display: flex; align-items: center; gap: 8px; color: #fff; font-weight: 600; font-size: 14px; animation: statFloat 4s ease-in-out infinite; box-shadow: 0 8px 24px rgba(0,0,0,0.3); }
+.stat-1 { top: 20px; right: -20px; animation-delay: 0s; }
+.stat-2 { bottom: 180px; left: -30px; animation-delay: 1.5s; }
+.stat-3 { bottom: 60px; right: -10px; animation-delay: 3s; }
+@keyframes statFloat { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+.floating-stat i { font-size: 18px; }
+
+.section-head { text-align: center; max-width: 820px; margin: 0 auto 40px; }
+.section-head .eyebrow { color: #67e8f9; letter-spacing: 0.8px; font-weight: 700; text-transform: uppercase; font-size: 13px; }
+.section-head h2 { color: #f8fafc; font-size: 36px; margin: 10px 0; }
+
+.features { padding: 40px 7% 80px; }
+.feature-card { padding: 20px; border-radius: 16px; background: var(--surface); border: 1px solid var(--border); height: 100%; box-shadow: 0 20px 60px rgba(0,0,0,0.4); transition: transform 0.3s ease, box-shadow 0.3s ease; }
+.feature-card:hover { transform: translateY(-4px); box-shadow: 0 24px 70px rgba(6, 182, 212, 0.2); }
+.feature-card h3 { margin: 14px 0 8px; color: #f8fafc; font-size: 20px; }
+.feature-card p { color: var(--muted); margin: 0; }
+.feature-card .icon { width: 48px; height: 48px; border-radius: 12px; display: grid; place-items: center; color: #fff; font-size: 22px; }
+.gradient-1 { background: linear-gradient(135deg, #06b6d4, #2563eb); }
+.gradient-2 { background: linear-gradient(135deg, #8b5cf6, #06b6d4); }
+.gradient-3 { background: linear-gradient(135deg, #f97316, #ef4444); }
+.gradient-4 { background: linear-gradient(135deg, #22c55e, #06b6d4); }
+.gradient-5 { background: linear-gradient(135deg, #f59e0b, #fbbf24); }
+.gradient-6 { background: linear-gradient(135deg, #0ea5e9, #7c3aed); }
+.gradient-7 { background: linear-gradient(135deg, #ec4899, #8b5cf6); }
+.gradient-8 { background: linear-gradient(135deg, #06b6d4, #14b8a6); }
+
+.workflow { padding: 60px 7% 80px; background: rgba(0,0,0,0.2); }
+.workflow-card { padding: 26px; border-radius: 16px; background: var(--surface); border: 1px solid var(--border); height: 100%; box-shadow: 0 20px 60px rgba(0,0,0,0.4); text-align: center; transition: transform 0.3s ease; }
+.workflow-card:hover { transform: translateY(-4px); }
+.step-number { width: 60px; height: 60px; border-radius: 50%; background: linear-gradient(135deg, #06b6d4, #0891b2); display: grid; place-items: center; font-size: 28px; font-weight: 700; color: #fff; margin: 0 auto 20px; box-shadow: 0 8px 24px rgba(6, 182, 212, 0.4); }
+.workflow-card h3 { color: #f8fafc; font-size: 22px; margin-bottom: 12px; }
+.workflow-card p { color: var(--muted); margin: 0; }
+
+.roles { padding: 60px 7% 80px; }
+.role-card { padding: 28px; border-radius: 16px; background: var(--surface); border: 1px solid var(--border); height: 100%; box-shadow: 0 20px 60px rgba(0,0,0,0.4); }
+.role-header { display: flex; align-items: center; gap: 16px; margin-bottom: 24px; }
+.role-icon { width: 56px; height: 56px; border-radius: 14px; display: grid; place-items: center; color: #fff; font-size: 26px; }
+.role-icon.student { background: linear-gradient(135deg, #06b6d4, #0891b2); }
+.role-icon.teacher { background: linear-gradient(135deg, #8b5cf6, #7c3aed); }
+.role-header h3 { color: #f8fafc; font-size: 24px; margin: 0; }
+.role-features { list-style: none; padding: 0; margin: 0; }
+.role-features li { display: flex; align-items: flex-start; gap: 12px; padding: 10px 0; color: var(--muted); }
+.role-features li i { color: #06b6d4; font-size: 18px; margin-top: 2px; flex-shrink: 0; }
+
+.security { padding: 60px 7%; background: rgba(0,0,0,0.2); }
+.security-content { padding: 20px 0; }
+.security-content h2 { color: #f8fafc; font-size: 36px; margin: 10px 0 16px; }
+.security-content .lede { color: var(--muted); font-size: 18px; margin-bottom: 32px; }
+.security-features { display: grid; gap: 20px; }
+.security-item { display: flex; gap: 16px; align-items: flex-start; }
+.security-icon { width: 48px; height: 48px; border-radius: 12px; background: linear-gradient(135deg, #06b6d4, #0891b2); display: grid; place-items: center; color: #fff; font-size: 22px; flex-shrink: 0; }
+.security-item h4 { color: #f8fafc; font-size: 18px; margin: 0 0 6px; }
+.security-item p { color: var(--muted); margin: 0; }
+.security-visual { display: grid; place-items: center; padding: 40px; }
+.shield-graphic { width: 240px; height: 240px; border-radius: 50%; background: linear-gradient(135deg, rgba(6,182,212,0.2), rgba(124,58,237,0.2)); display: grid; place-items: center; position: relative; }
+.shield-graphic::before { content: ''; position: absolute; inset: -20px; border: 2px solid rgba(6,182,212,0.3); border-radius: 50%; animation: pulse 3s ease-in-out infinite; }
+.shield-graphic i { font-size: 120px; color: #06b6d4; filter: drop-shadow(0 0 30px rgba(6,182,212,0.6)); }
+@keyframes pulse { 0%, 100% { transform: scale(1); opacity: 0.5; } 50% { transform: scale(1.05); opacity: 0.8; } }
+
+.benefits { padding: 60px 7% 80px; }
+.benefit-card { padding: 24px; border-radius: 16px; background: var(--surface); border: 1px solid var(--border); height: 100%; box-shadow: 0 20px 60px rgba(0,0,0,0.4); text-align: center; transition: transform 0.3s ease; }
+.benefit-card:hover { transform: translateY(-4px); }
+.benefit-icon { width: 56px; height: 56px; border-radius: 50%; background: linear-gradient(135deg, #06b6d4, #0891b2); display: grid; place-items: center; color: #fff; font-size: 26px; margin: 0 auto 16px; }
+.benefit-card h3 { color: #f8fafc; font-size: 20px; margin-bottom: 10px; }
+.benefit-card p { color: var(--muted); margin: 0; }
+
+.cta-final { padding: 60px 7% 100px; }
+.cta-final-card { padding: 50px 40px; border-radius: 20px; background: linear-gradient(135deg, rgba(6,182,212,0.18), rgba(124,58,237,0.18)); border: 1px solid rgba(255,255,255,0.12); text-align: center; box-shadow: 0 30px 80px rgba(0,0,0,0.5); }
+.cta-final-card h2 { color: #f8fafc; font-size: 38px; margin: 0 0 16px; }
+.cta-final-card p { color: var(--muted); font-size: 18px; max-width: 700px; margin: 0 auto 30px; }
+.cta-final-card .btn { font-size: 18px; padding: 16px 32px; }
+
+@media (max-width: 991px) {
+    .hero { padding: 80px 0 40px; min-height: auto; }
+    .title-main { font-size: 48px; }
+    .title-gradient { font-size: 36px; }
+    .hero-visual { display: none; }
+    .security-visual { display: none; }
+    .cta-final-card { padding: 40px 30px; }
+    .cta-final-card h2 { font-size: 32px; }
+}
+
+@media (max-width: 576px) {
+    .title-main { font-size: 38px; }
+    .title-gradient { font-size: 30px; }
+    .feature-pills { grid-template-columns: 1fr; }
+    .badge-cluster { flex-direction: column; align-items: flex-start; }
+    .section-head h2 { font-size: 28px; }
+    .shield-graphic { width: 180px; height: 180px; }
+    .shield-graphic i { font-size: 90px; }
+}
+</style>
+{% endblock %}
