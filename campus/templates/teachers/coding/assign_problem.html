@@ -201,16 +201,6 @@
                         </div>
 
             <div class="mb-4">
-                <label class="form-label"><i class="bi bi-book"></i> Subject (Optional)</label>
-                            <select id="subject_id" class="form-select">
-                                <option value="">-- All Students --</option>
-                                {% for subject in subjects %}
-                                <option value="{{ subject.id }}">{{ subject.name }}</option>
-                                {% endfor %}
-                            </select>
-                        </div>
-
-            <div class="mb-4">
                 <label class="form-label"><i class="bi bi-calendar-check"></i> Deadline *</label>
                             <input type="datetime-local" id="deadline" class="form-control" required>
                         </div>
@@ -308,7 +298,6 @@ function closeDialog() {
 
 async function createAssignment() {
     const title = document.getElementById('title').value.trim();
-    const subject_id = document.getElementById('subject_id').value;
     const deadline = document.getElementById('deadline').value;
     const instructions = document.getElementById('instructions').value.trim();
 
@@ -318,11 +307,10 @@ async function createAssignment() {
     }
 
     const confirmed = await showConfirm({
-        title: '📤 Create Assignment',
+        title: 'Create Assignment',
         message: `Create assignment "<strong>${title}</strong>"?<br><br>Students will be notified and can start solving the problem.`,
         confirmText: 'Create',
         cancelText: 'Cancel',
-        icon: '',
         type: 'confirm'
     });
     
@@ -338,7 +326,7 @@ async function createAssignment() {
             body: JSON.stringify({
                 problem_id: {{ problem.id }},
                 title: title,
-                subject_id: subject_id || null,
+                subject_id: null,
                 deadline: deadline,
                 instructions: instructions
             })
