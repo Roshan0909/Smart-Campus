@@ -129,11 +129,6 @@
                         <label for="{{ form.username.id_for_label }}">Username</label>
                         <div class="input-underline"></div>
                     </div>
-                    {% if form.username.errors %}
-                        <div class="error-message">
-                            <i class="bi bi-exclamation-circle-fill"></i> {{ form.username.errors }}
-                        </div>
-                    {% endif %}
                 </div>
                 
                 <!-- Password Field -->
@@ -146,20 +141,7 @@
                         <label for="{{ form.password.id_for_label }}">Password</label>
                         <div class="input-underline"></div>
                     </div>
-                    {% if form.password.errors %}
-                        <div class="error-message">
-                            <i class="bi bi-exclamation-circle-fill"></i> {{ form.password.errors }}
-                        </div>
-                    {% endif %}
                 </div>
-                
-                <!-- Global Errors -->
-                {% if form.non_field_errors %}
-                    <div class="error-alert">
-                        <i class="bi bi-exclamation-triangle-fill"></i>
-                        <span>{{ form.non_field_errors }}</span>
-                    </div>
-                {% endif %}
                 
                 <!-- Submit Button -->
                 <button type="submit" class="login-btn">
@@ -175,6 +157,29 @@
         </div>
     </div>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const errors = [];
+    {% if form.username.errors %}
+        {% for err in form.username.errors %}
+            errors.push('Username: {{ err|escapejs }}');
+        {% endfor %}
+    {% endif %}
+    {% if form.password.errors %}
+        {% for err in form.password.errors %}
+            errors.push('Password: {{ err|escapejs }}');
+        {% endfor %}
+    {% endif %}
+    {% if form.non_field_errors %}
+        {% for err in form.non_field_errors %}
+            errors.push('{{ err|escapejs }}');
+        {% endfor %}
+    {% endif %}
+
+    errors.forEach(msg => showToast(msg, 'error'));
+});
+</script>
 
 <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
