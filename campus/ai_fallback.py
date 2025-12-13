@@ -7,11 +7,23 @@ import requests
 from typing import Optional, Dict, Any
 import google.generativeai as genai
 
+# Load .env early so AIModelManager sees the key at import time
+try:
+    from dotenv import load_dotenv
+
+    project_root = os.path.dirname(__file__)
+    env_path = os.path.join(project_root, '.env')
+    if os.path.exists(env_path):
+        load_dotenv(env_path)
+except ImportError:
+    # If dotenv is missing, continue without raising
+    pass
+
 class AIModelManager:
     """Manages AI model requests with automatic fallback to local model"""
     
     def __init__(self):
-        self.gemini_api_key = os.environ.get('GEMINI_API_KEY')
+        self.gemini_api_key = os.environ.get('API_KEY')
         self.ollama_base_url = os.environ.get('OLLAMA_BASE_URL', 'http://localhost:11434')
         self.ollama_model = os.environ.get('OLLAMA_MODEL', 'llama3.2')
         self.use_gemini = True
