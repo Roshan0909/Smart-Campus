@@ -22,46 +22,37 @@ class QuizReportFilter:
         self.teacher = teacher
         self.filters = {}
     
-    def set_quiz_filter(self, quiz_id):
-        """Filter by specific quiz"""
-        self.filters['quiz_id'] = quiz_id
-        return self
-    
-    def set_subject_filter(self, subject_id):
-        """Filter by subject"""
-        self.filters['subject_id'] = subject_id
-        return self
-    
-    def set_date_range_filter(self, start_date, end_date):
-        """Filter by date range"""
-        self.filters['start_date'] = start_date
-        self.filters['end_date'] = end_date
-        return self
-    
-    def set_score_range_filter(self, min_score, max_score):
-        """Filter by score range"""
-        self.filters['min_score'] = min_score
-        self.filters['max_score'] = max_score
-        return self
-    
-    def set_student_filter(self, student_id):
-        """Filter by specific student"""
-        self.filters['student_id'] = student_id
-        return self
-    
-    def set_completion_filter(self, completed_only=True):
-        """Filter by completion status"""
-        self.filters['completed_only'] = completed_only
-        return self
-    
-    def set_difficulty_filter(self, difficulty):
-        """Filter by quiz difficulty"""
-        self.filters['difficulty'] = difficulty
-        return self
-    
     def set_search_filter(self, search_text):
         """Search in quiz title or student name"""
         self.filters['search'] = search_text
+        return self
+
+    def set_quiz_filter(self, quiz_id):
+        self.filters['quiz_id'] = quiz_id
+        return self
+
+    def set_subject_filter(self, subject_id):
+        self.filters['subject_id'] = subject_id
+        return self
+
+    def set_student_filter(self, student_id):
+        self.filters['student_id'] = student_id
+        return self
+
+    def set_difficulty_filter(self, difficulty):
+        self.filters['difficulty'] = difficulty
+        return self
+
+    def set_date_range_filter(self, start_date, end_date):
+        if start_date:
+            self.filters['start_date'] = start_date
+        if end_date:
+            self.filters['end_date'] = end_date
+        return self
+
+    def set_score_range_filter(self, min_score, max_score):
+        self.filters['min_score'] = min_score
+        self.filters['max_score'] = max_score
         return self
     
     def get_attempts(self):
@@ -288,30 +279,33 @@ class QuizReportGenerator:
             max_score = 0
             min_score = 0
         
-        stats_data = [
-            ['<b>Metric</b>', '<b>Value</b>'],
-            ['Total Attempts', str(total_attempts_count)],
-            ['Completed Attempts', str(completed_count)],
-            ['Unique Students', str(unique_students)],
-            ['Total Quizzes', str(unique_quizzes)],
-            ['Average Score', f"{avg_score} pts"],
-            ['Average Percentage', f"{avg_percentage}%"],
-            ['Highest Score', str(max_score)],
-            ['Lowest Score', str(min_score)],
-            ['<b>--- Risk Assessment ---</b>', ''],
-            ['Fair Attempts', f'<font color="#28a745">{fair_count}</font>'],
-            ['Low Risk Attempts', f'<font color="#ffc107">{low_risk_count}</font>'],
-            ['Moderate Risk Attempts', f'<font color="#fd7e14">{moderate_risk_count}</font>'],
-            ['High Risk (Unfair) Attempts', f'<font color="#dc3545">{high_risk_count}</font>'],
-            ['Average Risk Score', f'{avg_risk}'],
-            ['Maximum Risk Score', f'<font color="#dc3545">{max_risk}</font>'],
-            ['Minimum Risk Score', f'<font color="#28a745">{min_risk}</font>'],
-            ['Total Violations', f'<font color="#dc3545">{total_violations}</font>'],
-            ['Total Tab Switches', f'<font color="#ffc107">{total_tab_switches}</font>'],
+        # Build stats rows with optional colors for values (no HTML font tags)
+        stats_rows = [
+            ('<b>Metric</b>', '<b>Value</b>', None),
+            ('Total Attempts', str(total_attempts_count), None),
+            ('Completed Attempts', str(completed_count), None),
+            ('Unique Students', str(unique_students), None),
+            ('Total Quizzes', str(unique_quizzes), None),
+            ('Average Score', f"{avg_score} pts", None),
+            ('Average Percentage', f"{avg_percentage}%", None),
+            ('Highest Score', str(max_score), None),
+            ('Lowest Score', str(min_score), None),
+            ('<b>--- Risk Assessment ---</b>', '', None),
+            ('Fair Attempts', str(fair_count), colors.HexColor('#28a745')),
+            ('Low Risk Attempts', str(low_risk_count), colors.HexColor('#ffc107')),
+            ('Moderate Risk Attempts', str(moderate_risk_count), colors.HexColor('#fd7e14')),
+            ('High Risk (Unfair) Attempts', str(high_risk_count), colors.HexColor('#dc3545')),
+            ('Average Risk Score', str(avg_risk), None),
+            ('Maximum Risk Score', str(max_risk), colors.HexColor('#dc3545')),
+            ('Minimum Risk Score', str(min_risk), colors.HexColor('#28a745')),
+            ('Total Violations', str(total_violations), colors.HexColor('#dc3545')),
+            ('Total Tab Switches', str(total_tab_switches), colors.HexColor('#ffc107')),
         ]
-        
+
+        stats_data = [[label, value] for label, value, _ in stats_rows]
+
         stats_table = Table(stats_data, colWidths=[3.5*inch, 2*inch])
-        stats_table.setStyle(TableStyle([
+        table_style = [
             ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#06B6D4')),
             ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
             ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
@@ -325,7 +319,14 @@ class QuizReportGenerator:
             ('TOPPADDING', (0, 1), (-1, -1), 10),
             ('BOTTOMPADDING', (0, 1), (-1, -1), 10),
             ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
-        ]))
+        ]
+
+        # Apply per-row value colors
+        for idx, (_, _, color_val) in enumerate(stats_rows):
+            if color_val:
+                table_style.append(('TEXTCOLOR', (1, idx), (1, idx), color_val))
+
+        stats_table.setStyle(TableStyle(table_style))
         
         elements.append(stats_table)
         return elements
@@ -404,7 +405,8 @@ class QuizReportGenerator:
             table_data.append(row)
         
         if len(table_data) > 1:
-            attempts_table = Table(table_data, colWidths=[1.1*inch, 1.1*inch, 0.5*inch, 0.35*inch, 0.35*inch, 0.6*inch, 0.35*inch, 0.35*inch, 0.5*inch])
+            # Widen percentage and risk columns for better readability in PDF
+            attempts_table = Table(table_data, colWidths=[1.1*inch, 1.1*inch, 0.55*inch, 0.55*inch, 0.55*inch, 0.7*inch, 0.4*inch, 0.4*inch, 0.6*inch])
             attempts_table.setStyle(TableStyle([
                 ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#0891b2')),
                 ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),

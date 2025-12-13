@@ -38,6 +38,7 @@ urlpatterns = [
     path('reports/', reports_views.quiz_reports, name='quiz_reports'),
     path('reports/filter/', reports_views.filter_quiz_reports, name='filter_quiz_reports'),
     path('reports/download-pdf/', reports_views.download_quiz_report_pdf, name='download_quiz_report_pdf'),
+    path('reports/download-excel/', reports_views.download_quiz_report_excel, name='download_quiz_report_excel'),
     path('reports/question-performance/<int:quiz_id>/', reports_views.question_performance, name='question_performance'),
     path('reports/student-progress/<int:student_id>/', reports_views.student_progress, name='student_progress'),
 ]

@@ -11,6 +11,8 @@ from teachers.reports_generator import QuizReportFilter, QuizReportGenerator, Qu
 from authentication.models import User
 from django.utils import timezone
 from datetime import timedelta
+import csv
+from io import StringIO
 import json
 
 
@@ -182,6 +184,91 @@ def download_quiz_report_pdf(request):
         
     except Exception as e:
         return HttpResponse(f"Error generating PDF: {str(e)}", status=500)
+
+
+@login_required
+def download_quiz_report_excel(request):
+    """Download filtered data as Excel-compatible CSV"""
+    if not request.user.is_teacher():
+        return HttpResponseForbidden("You don't have permission to access this page.")
+    
+    try:
+        report_filter = QuizReportFilter(request.user)
+        
+        # Filters
+        if request.GET.get('quiz_id'):
+            report_filter.set_quiz_filter(request.GET['quiz_id'])
+        if request.GET.get('subject_id'):
+            report_filter.set_subject_filter(request.GET['subject_id'])
+        if request.GET.get('student_id'):
+            report_filter.set_student_filter(request.GET['student_id'])
+        if request.GET.get('start_date'):
+            start_date = timezone.datetime.fromisoformat(request.GET['start_date'])
+        else:
+            start_date = None
+        if request.GET.get('end_date'):
+            end_date = timezone.datetime.fromisoformat(request.GET['end_date'])
+        else:
+            end_date = None
+        if start_date or end_date:
+            report_filter.set_date_range_filter(start_date, end_date)
+        if request.GET.get('risk_filter'):
+            risk_filter_value = request.GET.get('risk_filter')
+        else:
+            risk_filter_value = None
+        
+        # Get attempts
+        attempts = list(report_filter.get_attempts())
+
+        # Apply risk filter client-side (same logic as PDF)
+        if risk_filter_value:
+            filtered_attempts = []
+            for attempt in attempts:
+                risk_score = attempt.calculate_risk_score()['risk_score']
+                if risk_filter_value == 'accept' and risk_score < 25:
+                    filtered_attempts.append(attempt)
+                elif risk_filter_value == 'review' and 25 <= risk_score < 50:
+                    filtered_attempts.append(attempt)
+                elif risk_filter_value == 'reject' and risk_score >= 50:
+                    filtered_attempts.append(attempt)
+            attempts = filtered_attempts
+
+        # Prepare CSV
+        buffer = StringIO()
+        writer = csv.writer(buffer)
+        writer.writerow([
+            'Quiz', 'Student', 'Score', 'Total', '%', 'Risk Score', 'Risk Level', 'Risk Status',
+            'Violations', 'Tab Switches', 'Fullscreen Exits', 'Completed At', 'Status'
+        ])
+
+        for attempt in attempts:
+            score = attempt.score or 0
+            total = attempt.total_points or 0
+            percentage = round((score / total * 100), 2) if total else 0
+            student_name = attempt.student.get_full_name().strip() or attempt.student.username
+            risk = attempt.calculate_risk_score()
+            writer.writerow([
+                attempt.quiz.title,
+                student_name,
+                score,
+                total,
+                percentage,
+                risk['risk_score'],
+                risk['risk_level'],
+                risk['risk_status'],
+                len(attempt.proctoring_violations) if attempt.proctoring_violations else 0,
+                attempt.tab_switch_count,
+                attempt.fullscreen_exit_count,
+                attempt.completed_at.strftime('%Y-%m-%d %H:%M') if attempt.completed_at else 'N/A',
+                'Completed' if attempt.completed_at else 'In Progress'
+            ])
+
+        # Build response
+        response = HttpResponse(buffer.getvalue(), content_type='text/csv')
+        response['Content-Disposition'] = 'attachment; filename="quiz_report.csv"'
+        return response
+    except Exception as e:
+        return HttpResponse(f"Error generating Excel: {str(e)}", status=500)
 
 
 @login_required

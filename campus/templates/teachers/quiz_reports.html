@@ -166,9 +166,14 @@
                 <h2><i class="bi bi-bar-chart me-2"></i>Quiz Reports & Analytics</h2>
                 <p>Filter and analyze quiz performance data</p>
             </div>
-            <button class="btn btn-light" id="downloadPdfBtn" onclick="downloadReportPDF()">
-                <i class="bi bi-download me-1"></i>Download PDF Report
-            </button>
+            <div class="d-flex flex-wrap gap-2">
+                <button class="btn btn-light" id="downloadPdfBtn" onclick="downloadReportPDF()">
+                    <i class="bi bi-download me-1"></i>Download PDF Report
+                </button>
+                <button class="btn btn-light" id="downloadExcelBtn" onclick="downloadReportExcel()">
+                    <i class="bi bi-file-earmark-excel"></i> Download Excel
+                </button>
+            </div>
         </div>
     </div>
 
@@ -471,6 +476,19 @@ function downloadReportPDF() {
     });
 
     window.location.href = `{% url 'download_quiz_report_pdf' %}?${filters.toString()}`;
+}
+
+function downloadReportExcel() {
+    const filters = new URLSearchParams({
+        quiz_id: document.getElementById('quizFilter').value,
+        subject_id: document.getElementById('subjectFilter').value,
+        student_id: document.getElementById('studentFilter').value,
+        risk_filter: document.getElementById('riskFilter').value,
+        start_date: document.getElementById('startDate').value,
+        end_date: document.getElementById('endDate').value
+    });
+
+    window.location.href = `{% url 'download_quiz_report_excel' %}?${filters.toString()}`;
 }
 
 function renderPagination(totalPages) {
