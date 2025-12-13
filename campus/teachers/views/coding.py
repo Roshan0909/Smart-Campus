@@ -15,8 +15,7 @@ import re
 import sys
 import os
 
-from .models_coding import CodingProblem, CodingAssignment, TestCase
-from .models import Subject
+from ..models import CodingProblem, CodingAssignment, TestCase, Subject
 
 
 # ============================================

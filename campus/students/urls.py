@@ -1,17 +1,17 @@
 from django.urls import path
 from . import views
-from . import coding_views
+from .views import coding
 
 urlpatterns = [
     path('dashboard/', views.student_dashboard, name='student_dashboard'),
     
     # Code Arena - Student
-    path('coding/', coding_views.assignments_dashboard, name='student_coding_dashboard'),
-    path('coding/solve/<int:assignment_id>/', coding_views.solve_problem, name='student_solve_problem'),
-    path('coding/run/', coding_views.run_code, name='student_run_code'),
-    path('coding/submit/', coding_views.submit_code, name='student_submit_code'),
-    path('coding/submissions/', coding_views.my_submissions, name='student_my_submissions'),
-    path('coding/submission/<int:submission_id>/', coding_views.submission_detail, name='student_submission_detail'),
+    path('coding/', coding.assignments_dashboard, name='student_coding_dashboard'),
+    path('coding/solve/<int:assignment_id>/', coding.solve_problem, name='student_solve_problem'),
+    path('coding/run/', coding.run_code, name='student_run_code'),
+    path('coding/submit/', coding.submit_code, name='student_submit_code'),
+    path('coding/submissions/', coding.my_submissions, name='student_my_submissions'),
+    path('coding/submission/<int:submission_id>/', coding.submission_detail, name='student_submission_detail'),
     
     path('subject/<int:subject_id>/', views.student_subject_detail, name='student_subject_detail'),
     path('magnify-learning/', views.magnify_learning, name='magnify_learning'),

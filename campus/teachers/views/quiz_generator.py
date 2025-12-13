@@ -7,7 +7,7 @@ import re
 import sys
 
 # Add campus directory to path for ai_fallback import
-sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(__file__))))
 from ai_fallback import generate_content
 
 def extract_text_from_pdf(pdf_path, max_pages=20):

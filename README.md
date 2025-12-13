@@ -1,164 +1,312 @@
-# Smart Campus (Student Campus) – AI-Powered Learning Management System
+# Smart Campus
 
-A Django-based learning platform that layers Google Gemini-powered search, summarization, and quiz generation on top of PDF/Docx/PPT course materials. It supports teacher workflows (content upload, quiz creation, messaging) and student learning tools (PDF chat, summaries, knowledge bot, quizzes, chat).
+A comprehensive Django-based learning management system with AI-powered features for student and teacher interactions.
 
-## Prerequisites
-- Python 3.11+ (Django 5.2.x)
-- Build tools (gcc/clang on Linux/Mac, Build Tools for Visual Studio on Windows) for some wheels if binaries are unavailable.
-- External binaries for document processing:
-  - **Poppler** (for `pdf2image`): install via `choco install poppler` on Windows or your package manager.
-  - **Tesseract OCR** (for `pytesseract`): install via `choco install tesseract` on Windows or your package manager; ensure `tesseract` is on PATH.
-  - **Ghostscript** (for some PDF conversions) recommended but not strictly required.
+## Project Overview
 
-## Quick Start (local)
-1. Clone and enter the repo:
+Smart Campus is a full-featured LMS built with Django that includes:
+- Student dashboard and learning management
+- Teacher tools for quiz creation and grading
+- AI-powered study aids (summarizer, knowledge bot, flashcards)
+- Coding arena with problem generation and auto-grading
+- Real-time chat between students and teachers
+- Exam proctoring with violation detection
+- Quiz analytics and reporting
+
+## Technology Stack
+
+- **Backend**: Django 4.x
+- **Database**: SQLite/PostgreSQL
+- **AI Integration**: Google Generative AI (Gemini)
+- **Authentication**: Django built-in
+- **File Processing**: PyPDF2, python-docx, python-pptx
+- **Code Execution**: Judge0 API integration
+- **Reporting**: ReportLab (PDF generation)
+
+## Project Structure
+
+```
+campus/
+├── authentication/          # User authentication & authorization
+├── students/               # Student module
+│   ├── models.py          # Student-related models
+│   ├── urls.py            # 34 student routes
+│   ├── views/             # 14 view modules (organized by feature)
+│   │   ├── dashboard.py       (Dashboard & subjects)
+│   │   ├── pdf.py            (PDF chat & flashcards)
+│   │   ├── quiz.py           (Quiz management)
+│   │   ├── chat.py           (Messaging)
+│   │   ├── coding.py         (Coding arena)
+│   │   ├── summarizer.py     (Text summarization)
+│   │   ├── knowledge_bot.py  (AI learning assistant)
+│   │   ├── leaderboard.py    (Rankings)
+│   │   ├── practice_quiz.py  (Practice quizzes)
+│   │   ├── proctoring.py     (Exam monitoring)
+│   │   ├── profile.py        (User profile)
+│   │   └── utilities (summarizer_utils.py, leaderboard_utils.py)
+│   └── migrations/
+│
+├── teachers/              # Teacher module
+│   ├── models.py          # All models (quiz, coding, etc.)
+│   ├── urls.py            # 37 teacher routes
+│   ├── views/             # 11 view modules (organized by feature)
+│   │   ├── dashboard.py       (Dashboard & subjects)
+│   │   ├── quiz.py           (Quiz management)
+│   │   ├── reports.py        (Quiz analytics & reports)
+│   │   ├── chat.py           (Messaging)
+│   │   ├── coding.py         (Coding problem management)
+│   │   ├── proctoring.py     (Exam monitoring)
+│   │   └── utilities (quiz_generator.py, reports_generator.py, etc.)
+│   └── migrations/
+│
+├── student_campus/        # Django project settings
+│   ├── settings.py
+│   ├── urls.py
+│   ├── wsgi.py
+│   └── asgi.py
+│
+├── templates/             # HTML templates
+├── media/                 # User uploads (PDFs, images, etc.)
+├── faiss_indices/         # Vector search indices
+├── tests/                 # Test files
+├── manage.py              # Django management
+└── requirements.txt       # Python dependencies
+```
+
+## Module Organization
+
+### Students Module (14 view files)
+- **dashboard.py** - Student dashboard, subject listings
+- **pdf.py** - PDF interaction, flashcard generation
+- **quiz.py** - Quiz taking and reporting
+- **chat.py** - Direct messaging with teachers
+- **coding.py** - Coding problem solving
+- **summarizer.py** - Text summarization
+- **knowledge_bot.py** - AI-powered Q&A assistant
+- **leaderboard.py** - Student rankings
+- **practice_quiz.py** - Student-created quizzes
+- **proctoring.py** - Exam monitoring snapshots
+- **profile.py** - Student profile management
+- **coding.py** (utility functions)
+- **summarizer_utils.py** - Text extraction utilities
+- **leaderboard_utils.py** - Ranking calculations
+
+### Teachers Module (11 view files)
+- **dashboard.py** - Teacher dashboard, subject management
+- **quiz.py** - Quiz creation and management
+- **reports.py** - Quiz analytics and reporting
+- **chat.py** - Messaging with students
+- **coding.py** - Coding problem creation and assignment
+- **proctoring.py** - Exam proctoring reports
+- **quiz_generator.py** - AI quiz generation from documents
+- **reports_generator.py** - Report generation utilities
+- **code_executor.py** - Code execution engine
+- **coding_problem_generator.py** - AI problem generation
+- **__init__.py** - Module re-exports
+
+## Key Features
+
+### For Students
+- 📚 **Document Learning**: Upload and chat with PDFs, Word docs, PowerPoint
+- 🤖 **AI Study Tools**: Automatic summarization, flashcard generation
+- 💬 **Knowledge Bot**: AI-powered Q&A assistant
+- 🏆 **Leaderboard**: Competition and progress tracking
+- 🧠 **Practice Quizzes**: Create and take custom quizzes
+- 💻 **Coding Arena**: Solve programming problems with auto-grading
+- 📊 **Quiz Reports**: Detailed performance analytics
+- 🔍 **Exam Proctoring**: Secure exam environment with violation detection
+
+### For Teachers
+- 📝 **Quiz Management**: Create, generate, and analyze quizzes
+- 🤖 **AI Assistance**: Auto-generate quizzes from documents
+- 💻 **Coding Problems**: Create and assign coding problems
+- 🧪 **Code Execution**: Judge0 integration for secure execution
+- 📊 **Advanced Reports**: Student performance analytics
+- 📈 **Question Analytics**: Identify difficult questions
+- 👥 **Student Progress**: Track individual student improvement
+- 💬 **Direct Messaging**: Communicate with students
+- 👀 **Exam Proctoring**: Monitor and review exam violations
+
+## Routes Overview
+
+### Student Routes (34 total)
+```
+/student/dashboard/                    - Dashboard
+/student/coding/*                      - Coding arena (6 routes)
+/student/subject/<id>/                 - Subject detail
+/student/pdf-chat/<id>/                - PDF interaction
+/student/quiz/*                        - Quiz management (4 routes)
+/student/chat/*                        - Messaging (2 routes)
+/student/knowledge-bot/*               - AI assistant (2 routes)
+/student/leaderboard/                  - Rankings
+/student/practice-quiz/*               - Practice quizzes (5 routes)
+```
+
+### Teacher Routes (37 total)
+```
+/teacher/dashboard/                    - Dashboard
+/teacher/coding/*                      - Coding management (10 routes)
+/teacher/subject/*                     - Subject management (5 routes)
+/teacher/quiz/*                        - Quiz management (5 routes)
+/teacher/chat/*                        - Messaging (4 routes)
+/teacher/proctoring/<id>/              - Exam monitoring
+/teacher/reports/*                     - Analytics (6 routes)
+```
+
+## Installation
+
+1. **Clone the repository**
    ```bash
-   git clone https://github.com/Roshan0909/LangChain-PDF-Processor.git
-   cd LangChain-PDF-Processor/campus
+   git clone <repository-url>
+   cd smart_campus
    ```
-2. Create and activate a virtualenv (Windows PowerShell example):
+
+2. **Create virtual environment**
    ```bash
-   python -m venv .venv
-   .\.venv\Scripts\Activate.ps1
+   python -m venv venv
+   source venv/bin/activate  # On Windows: venv\Scripts\activate
    ```
-3. Install Python deps (requirements file lives one level up):
+
+3. **Install dependencies**
    ```bash
-   pip install -r ../requirements.txt
+   pip install -r requirements.txt
    ```
-4. Create a `.env` in the `campus/` folder (same place as `manage.py`):
-   ```env
-   API_KEY=your_gemini_api_key                      # Required for AI (quiz, PDF chat, summarizer, knowledge bot)
-   WIKIPEDIA_CLIENT_ID=your_wikipedia_client_id     # Optional, improves Knowledge Bot headers
-   WIKIPEDIA_CLIENT_SECRET=your_wikipedia_client_secret
-   ```
-   For production, also set `SECRET_KEY`, `DEBUG=False`, and `ALLOWED_HOSTS=yourdomain.com` in `student_campus/settings.py` or via environment.
-5. Initialize the database and admin user:
+
+4. **Configure environment variables**
+   - Copy `.env.example` to `.env`
+   - Set `GEMINI_API_KEY` for AI features
+   - Configure database settings
+
+5. **Run migrations**
    ```bash
    python manage.py migrate
+   ```
+
+6. **Create superuser**
+   ```bash
    python manage.py createsuperuser
    ```
-6. Run the app:
+
+7. **Run development server**
    ```bash
    python manage.py runserver
    ```
-   Visit http://localhost:8000 and log in with the superuser you created.
 
-## Features
-- **Teacher tools**: subject management, PDF/Docx/PPT uploads, Gemini-powered quiz generator, quiz analytics, messaging with attachments.
-- **Student tools**: dashboard, AI PDF chat (vector search + Gemini), document summarizer, timed quizzes with review, knowledge bot (Wikipedia + Gemini), messaging with teachers.
-- **Storage**: uploaded files in `media/`, FAISS indexes for PDFs in `faiss_indices/` folder (hashed per file).
+## Configuration
 
-## Project Layout (key paths)
+### Environment Variables
 ```
-README.md
-requirements.txt
-campus/
-├── manage.py
-├── app.py
-├── authentication/   # Auth models, forms, views, urls
-├── students/         # PDF chat, summaries, knowledge bot, quizzes
-├── teachers/         # Quiz generation, subjects, reports, messaging
-├── templates/        # Django templates (base, auth, teachers, students)
-├── media/            # Uploads: notes/, chat_files/, proctoring/
-├── faiss_indices/    # FAISS vector indexes (one per PDF, hashed by content)
-└── student_campus/   # Django settings, urls, wsgi
+GEMINI_API_KEY=your_api_key_here
+DEBUG=True
+DATABASE_URL=sqlite:///db.sqlite3
+SECRET_KEY=your_secret_key
 ```
 
-## Full Directory Reference (trimmed)
-```
-.
-├── README.md
-├── requirements.txt
-└── campus/
-   ├── app.py
-   ├── db.sqlite3
-   ├── manage.py
-   ├── authentication/
-   │   ├── __init__.py
-   │   ├── admin.py
-   │   ├── apps.py
-   │   ├── forms.py
-   │   ├── models.py
-   │   ├── tests.py
-   │   ├── urls.py
-   │   └── views.py
-   ├── students/
-   │   ├── __init__.py
-   │   ├── admin.py
-   │   ├── apps.py
-   │   ├── leaderboard_utils.py
-   │   ├── models.py
-   │   ├── summarizer_utils.py
-   │   ├── tests.py
-   │   ├── urls.py
-   │   ├── utils.py
-   │   └── views.py
-   ├── teachers/
-   │   ├── __init__.py
-   │   ├── admin.py
-   │   ├── apps.py
-   │   ├── forms.py
-   │   ├── models.py
-   │   ├── quiz_generator.py
-   │   ├── reports_generator.py
-   │   ├── reports_views.py
-   │   ├── tests.py
-   │   ├── urls.py
-   │   └── views.py
-   ├── student_campus/
-   │   ├── __init__.py
-   │   ├── asgi.py
-   │   ├── settings.py
-   │   ├── urls.py
-   │   └── wsgi.py
-   ├── templates/
-   │   ├── base.html
-   │   ├── authentication/
-   │   │   ├── loading.html
-   │   │   ├── login.html
-   │   │   └── signup.html
-   │   ├── students/
-   │   │   └── ...
-   │   └── teachers/
-   │       └── ...
-   ├── media/
-   │   ├── chat_files/
-   │   │   ├── 2025/
-   │   │   └── notes/
-   │   ├── notes/
-   │   │   └── 2025/
-   │   └── proctoring/
-   │       └── 2025/
-   ├── faiss_indices/
-   │   ├── faiss_index/
-   │   ├── faiss_index_<hash>/
-   │   │   └── index.faiss
-   │   └── ...
-   └── tests/
-      ├── files.py
-      └── test_proctoring.py
+### Key Settings
+- **AI Model**: Google Generative AI (Gemini)
+- **Code Execution**: Judge0 Community Edition API
+- **File Upload**: Supports PDF, DOCX, PPTX
+- **Session Timeout**: Configurable in settings.py
+
+## API Integration
+
+### Gemini API
+Used for:
+- Quiz generation from documents
+- Problem statement generation
+- Text summarization
+- AI-powered Q&A responses
+
+### Judge0 API
+Used for:
+- Secure code execution
+- Multi-language support (Python, Java, C++, JavaScript, C)
+- Execution result parsing
+
+## Database Models
+
+### Core Models
+- **User** - Extended authentication model
+- **Subject** - Course/subject management
+- **PDFNote** - Document storage
+- **ChatMessage** - Direct messaging
+
+### Quiz Models
+- **Quiz** - Quiz configuration
+- **Question** - Quiz questions
+- **QuizAttempt** - Student quiz attempts
+- **ProctoringSnapshot** - Exam violation records
+
+### Coding Models
+- **CodingProblem** - Programming problems
+- **CodingAssignment** - Problem assignments
+- **TestCase** - Problem test cases
+- **CodingSubmission** - Student code submissions
+
+## Development
+
+### Code Organization
+- Views are organized by feature (dashboard, quiz, chat, etc.)
+- Utilities are co-located with their dependent views
+- Models are consolidated in single files
+- URL routing is clean and hierarchical
+
+### Adding New Features
+1. Create new view module in appropriate `views/` folder
+2. Add route in `urls.py`
+3. Add function export in `views/__init__.py`
+4. Create templates if needed in `templates/`
+
+### Testing
+```bash
+python manage.py test
 ```
 
-## Configuration Notes
-- `API_KEY` is required; without it quiz generation, PDF chat, summarization, and Knowledge Bot will fail.
-- Wikipedia credentials are optional but recommended to provide better headers for the Knowledge Bot requests.
-- Static/media paths default to local storage; adjust in `student_campus/settings.py` for production (add `STATIC_ROOT`, configure media/CDN as needed).
-- Logging for Django server requests is set to `ERROR` only (see `student_campus/settings.py`).
+## Performance Optimization
 
-## Operating the App
-- Run tests: `python manage.py test`
-- Rebuild a PDF's FAISS index: delete its `faiss_indices/faiss_index_<pdf_hash>/` directory; the next PDF chat request will recreate it.
-- Large PDFs: text is split into 15k-character chunks with 2k overlap for retrieval (see `students/utils.py`).
-- File locations: course notes under `media/notes/YYYY/MM/DD/`, chat uploads under `media/chat_files/YYYY/MM/DD/`, proctoring assets under `media/proctoring/`.
+- Database query optimization with `select_related()` and `prefetch_related()`
+- FAISS indices for vector search (knowledge base)
+- Caching for frequently accessed data
+- Lazy loading of PDF content
+
+## Security
+
+- CSRF protection on all forms
+- SQL injection protection via ORM
+- Password hashing (Django default)
+- Rate limiting for API endpoints
+- Secure file upload handling
+- Session-based authentication
 
 ## Troubleshooting
-- **AI features returning errors**: ensure `API_KEY` is set and valid; verify outbound network access.
-- **PDF chat returns empty/irrelevant answers**: delete the corresponding `faiss_indices/faiss_index_<pdf_hash>/` folder to force re-indexing; confirm the PDF has extractable text (scans need Tesseract OCR).
-- **OCR/`pdf2image` errors**: confirm Poppler and Tesseract are installed and on PATH; restart the shell after install.
-- **Static files in production**: set `DEBUG=False`, define `ALLOWED_HOSTS`, add `STATIC_ROOT`, and run `python manage.py collectstatic`.
 
-## License & Contributions
-- MIT License. Contributions via pull requests are welcome.
+### Common Issues
+
+**Import Errors**
+- Ensure all view functions are exported in `__init__.py`
+- Check relative import paths (use `..` for parent packages)
+
+**Database Errors**
+- Run migrations: `python manage.py migrate`
+- Check database connection in settings
+
+**API Integration Issues**
+- Verify API keys in environment variables
+- Check Judge0 API availability
+- Ensure Gemini API is enabled
 
 ## Support
-Open an issue on GitHub if you run into problems or have feature requests.
+
+For issues and feature requests, contact the development team or submit an issue on the repository.
+
+## License
+
+Proprietary - All rights reserved
+
+## Contributors
+
+Smart Campus Development Team
+
+---
+
+**Last Updated**: December 2025

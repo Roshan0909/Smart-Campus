@@ -6,8 +6,8 @@ from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse, HttpResponse, HttpResponseForbidden
 from django.views.decorators.http import require_POST
 from django.db.models import Q
-from teachers.models import Quiz, QuizAttempt, Subject
-from teachers.reports_generator import QuizReportFilter, QuizReportGenerator, QuizAnalytics
+from ..models import Quiz, QuizAttempt, Subject
+from .reports_generator import QuizReportFilter, QuizReportGenerator, QuizAnalytics
 from authentication.models import User
 from django.utils import timezone
 from datetime import timedelta

@@ -1,22 +1,22 @@
 from django.urls import path
 from . import views
-from . import reports_views
-from . import coding_views
+from .views import reports
+from .views import coding
 
 urlpatterns = [
     path('dashboard/', views.teacher_dashboard, name='teacher_dashboard'),
     
     # Code Arena - Teacher
-    path('coding/problems/', coding_views.problems_list, name='teacher_coding_problems'),
-    path('coding/create/', coding_views.create_problem_form, name='teacher_create_problem'),
-    path('coding/generate/', coding_views.generate_problem_ai, name='teacher_generate_problem'),
-    path('coding/save/', coding_views.save_problem, name='teacher_save_problem'),
-    path('coding/assign/<int:problem_id>/', coding_views.assign_problem, name='teacher_assign_problem'),
-    path('coding/assignment/create/', coding_views.create_assignment, name='teacher_create_assignment'),
-    path('coding/assignments/', coding_views.assignments_list, name='teacher_coding_assignments'),
-    path('coding/assignment/<int:assignment_id>/submissions/', coding_views.assignment_submissions, name='teacher_assignment_submissions'),
-    path('coding/problem/<int:problem_id>/delete/', coding_views.delete_problem, name='teacher_delete_problem'),
-    path('coding/assignment/<int:assignment_id>/toggle/', coding_views.toggle_assignment, name='teacher_toggle_assignment'),
+    path('coding/problems/', coding.problems_list, name='teacher_coding_problems'),
+    path('coding/create/', coding.create_problem_form, name='teacher_create_problem'),
+    path('coding/generate/', coding.generate_problem_ai, name='teacher_generate_problem'),
+    path('coding/save/', coding.save_problem, name='teacher_save_problem'),
+    path('coding/assign/<int:problem_id>/', coding.assign_problem, name='teacher_assign_problem'),
+    path('coding/assignment/create/', coding.create_assignment, name='teacher_create_assignment'),
+    path('coding/assignments/', coding.assignments_list, name='teacher_coding_assignments'),
+    path('coding/assignment/<int:assignment_id>/submissions/', coding.assignment_submissions, name='teacher_assignment_submissions'),
+    path('coding/problem/<int:problem_id>/delete/', coding.delete_problem, name='teacher_delete_problem'),
+    path('coding/assignment/<int:assignment_id>/toggle/', coding.toggle_assignment, name='teacher_toggle_assignment'),
     
     path('subject/create/', views.create_subject, name='create_subject'),
     path('subject/<int:subject_id>/', views.subject_detail, name='teacher_subject_detail'),
@@ -35,10 +35,10 @@ urlpatterns = [
     path('proctoring/<int:attempt_id>/', views.proctoring_report, name='proctoring_report'),
     
     # Reports module
-    path('reports/', reports_views.quiz_reports, name='quiz_reports'),
-    path('reports/filter/', reports_views.filter_quiz_reports, name='filter_quiz_reports'),
-    path('reports/download-pdf/', reports_views.download_quiz_report_pdf, name='download_quiz_report_pdf'),
-    path('reports/download-excel/', reports_views.download_quiz_report_excel, name='download_quiz_report_excel'),
-    path('reports/question-performance/<int:quiz_id>/', reports_views.question_performance, name='question_performance'),
-    path('reports/student-progress/<int:student_id>/', reports_views.student_progress, name='student_progress'),
+    path('reports/', reports.quiz_reports, name='quiz_reports'),
+    path('reports/filter/', reports.filter_quiz_reports, name='filter_quiz_reports'),
+    path('reports/download-pdf/', reports.download_quiz_report_pdf, name='download_quiz_report_pdf'),
+    path('reports/download-excel/', reports.download_quiz_report_excel, name='download_quiz_report_excel'),
+    path('reports/question-performance/<int:quiz_id>/', reports.question_performance, name='question_performance'),
+    path('reports/student-progress/<int:student_id>/', reports.student_progress, name='student_progress'),
 ]

@@ -15,7 +15,7 @@ import os
 import google.generativeai as genai
 from django.conf import settings
 
-from teachers.models_coding import CodingProblem, CodingAssignment, TestCase, CodingSubmission
+from teachers.models import CodingProblem, CodingAssignment, TestCase, CodingSubmission
 
 
 def parse_input_with_ai(test_input, problem_description, code):

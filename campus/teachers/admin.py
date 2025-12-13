@@ -1,6 +1,6 @@
 from django.contrib import admin
 from .models import Subject, PDFNote, Quiz, Question, QuizAttempt
-from .models_coding import CodingProblem, CodingAssignment, TestCase, CodingSubmission
+from .models import CodingProblem, CodingAssignment, TestCase, CodingSubmission
 
 @admin.register(Subject)
 class SubjectAdmin(admin.ModelAdmin):
