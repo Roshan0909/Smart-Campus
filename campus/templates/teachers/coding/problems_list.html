@@ -446,12 +446,22 @@ async function deleteProblem(problemId) {
     if (!confirmed) return;
 
     try {
-        const response = await fetch(`/teachers/coding/problem/${problemId}/delete/`, {
+        const response = await fetch(`/teacher/coding/problem/${problemId}/delete/`, {
             method: 'POST',
             headers: {
-                'X-CSRFToken': '{{ csrf_token }}'
+                'X-CSRFToken': '{{ csrf_token }}',
+                'Content-Type': 'application/json'
             }
         });
+
+        // Check if response is valid JSON
+        const contentType = response.headers.get('content-type');
+        if (!contentType || !contentType.includes('application/json')) {
+            const text = await response.text();
+            console.error('Non-JSON response:', text);
+            showAlert('Server error: ' + response.statusText, 'error', 'Delete Failed');
+            return;
+        }
 
         const data = await response.json();
 
@@ -462,6 +472,7 @@ async function deleteProblem(problemId) {
             showAlert('Error: ' + data.error, 'error', 'Delete Failed');
         }
     } catch (error) {
+        console.error('Delete error:', error);
         showAlert('Network error: ' + error.message, 'error', 'Connection Error');
     }
 }

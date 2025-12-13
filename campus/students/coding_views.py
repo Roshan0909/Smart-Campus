@@ -18,6 +18,186 @@ from django.conf import settings
 from teachers.models_coding import CodingProblem, CodingAssignment, TestCase, CodingSubmission
 
 
+def parse_input_with_ai(test_input, problem_description, code):
+    """
+    Use AI to intelligently parse test input based on problem description
+    Returns: list of parsed arguments to pass to the function
+    """
+    import json
+    import re
+    
+    try:
+        if not settings.GEMINI_API_KEY:
+            print("⚠️ GEMINI_API_KEY not configured. Using basic parsing.")
+            return parse_input_basic(test_input)
+        
+        genai.configure(api_key=settings.GEMINI_API_KEY)
+        model = genai.GenerativeModel('gemini-2.5-flash')
+        
+        # Extract function signature and node class (if exists)
+        func_signature = extract_function_signature(code)
+        node_class = extract_node_class(code)
+        
+        # Detect if this is a linked list problem
+        is_linked_list = 'ListNode' in code or 'Node' in code or 'linked' in problem_description.lower()
+        is_tree = 'TreeNode' in code or 'tree' in problem_description.lower()
+        
+        prompt = f"""Analyze this problem and input, then parse the input into the correct argument types.
+
+PROBLEM DESCRIPTION:
+{problem_description}
+
+FUNCTION SIGNATURE:
+{func_signature}
+
+NODE CLASS (if applicable):
+{node_class if node_class else 'Not a linked structure problem'}
+
+CODE PREVIEW:
+{code[:500]}
+
+TEST INPUT (raw string):
+{test_input}
+
+Your task:
+1. Identify the function parameter names and types
+2. Parse input into correct types: int, float, str, list, array, etc.
+3. For linked lists: Convert arrays to linked list structure
+4. Return ONLY a valid Python list of parsed arguments
+
+IMPORTANT INSTRUCTIONS:
+- For arrays/lists: parse as Python lists [1, 2, 3]
+- For linked lists: Keep as Python list [1, 2, 3] - code will convert to ListNode
+- For multiple inputs: split by newlines
+- Convert to int/float when appropriate
+- If input is JSON format, parse it
+- Return format: ["arg1", 42, [1, 2, 3]] (valid Python syntax)
+- Do NOT include any explanation, ONLY the Python list
+
+Example inputs and outputs:
+- Input "5" for n:int → [5]
+- Input "1 2 3" for head:ListNode → [[1, 2, 3]]
+- Input "[1,2,3]\\n[4,5,6]" for l1, l2 linked lists → [[1, 2, 3], [4, 5, 6]]
+- Input "hello\\nworld" for s1:str, s2:str → ["hello", "world"]
+
+Return ONLY the Python list representation (no markdown, no explanation):"""
+        
+        response = model.generate_content(prompt, safety_settings=[
+            {"category": "HARM_CATEGORY_HATE_SPEECH", "threshold": "BLOCK_NONE"},
+            {"category": "HARM_CATEGORY_SEXUALLY_EXPLICIT", "threshold": "BLOCK_NONE"},
+            {"category": "HARM_CATEGORY_DANGEROUS_CONTENT", "threshold": "BLOCK_NONE"},
+            {"category": "HARM_CATEGORY_HARASSMENT", "threshold": "BLOCK_NONE"},
+            {"category": "HARM_CATEGORY_CIVIC_INTEGRITY", "threshold": "BLOCK_NONE"},
+        ])
+        
+        result_text = response.text.strip()
+        print(f"🤖 AI parsed input: {result_text}")
+        
+        # Clean up the response
+        result_text = result_text.replace('```python', '').replace('```', '').strip()
+        
+        # Safely evaluate the list
+        try:
+            parsed_args = eval(result_text)
+            if isinstance(parsed_args, list):
+                # Convert array arguments to ListNode if needed
+                if is_linked_list:
+                    parsed_args = convert_arrays_to_linked_list(parsed_args, code)
+                return parsed_args
+        except:
+            pass
+        
+        # Fallback to basic parsing if AI parsing fails
+        print("⚠️ AI parsing failed, using basic parsing")
+        result = parse_input_basic(test_input)
+        if is_linked_list:
+            result = convert_arrays_to_linked_list(result, code)
+        return result
+        
+    except Exception as e:
+        print(f"❌ AI parsing error: {str(e)}")
+        result = parse_input_basic(test_input)
+        return result
+
+
+def extract_function_signature(code):
+    """Extract function signature from code"""
+    import re
+    match = re.search(r'def\s+(\w+)\s*\((.*?)\):', code)
+    if match:
+        return f"def {match.group(1)}({match.group(2)}):"
+    return "Unknown function"
+
+
+def extract_node_class(code):
+    """Extract ListNode or Node class definition from code"""
+    import re
+    # Look for class definition (ListNode, Node, TreeNode, etc.)
+    class_pattern = r'class\s+(\w*Node)\s*(?:\(|:)(.*?)(?=class|\Z)'
+    match = re.search(class_pattern, code, re.DOTALL)
+    if match:
+        return match.group(0)
+    return None
+
+
+def parse_input_basic(test_input):
+    """Basic fallback input parsing"""
+    import json
+    
+    # Try JSON parsing first
+    try:
+        parsed = json.loads(test_input)
+        if isinstance(parsed, list):
+            return parsed
+        return [parsed]
+    except:
+        pass
+    
+    # Split by newlines
+    lines = test_input.strip().split('\n')
+    
+    # Try to convert each line
+    result = []
+    for line in lines:
+        line = line.strip()
+        
+        # Try JSON (for arrays)
+        try:
+            parsed = json.loads(line)
+            result.append(parsed)
+            continue
+        except:
+            pass
+        
+        # Try int
+        try:
+            result.append(int(line))
+            continue
+        except:
+            pass
+        
+        # Try float
+        try:
+            result.append(float(line))
+            continue
+        except:
+            pass
+        
+        # Keep as string
+        result.append(line)
+    
+    return result if result else [test_input]
+
+
+def convert_arrays_to_linked_list(args, code):
+    """
+    Convert array arguments to ListNode structures for linked list problems
+    Returns: list of converted arguments
+    """
+    # Just return args - conversion happens in execute_python_code with helper function
+    return args
+
+
 # ============================================
 # STUDENT DASHBOARD & ASSIGNMENTS
 # ============================================
@@ -126,41 +306,130 @@ def solve_problem(request, assignment_id):
 # CODE EXECUTION
 # ============================================
 
-def execute_python_code(code, test_input, time_limit=2):
+def execute_python_code(code, test_input, time_limit=2, problem_description=''):
     """
-    Execute Python code with test input
+    Execute Python code with test input - dynamically handles different input formats
+    Supports: arrays, primitives, linked lists, trees, etc.
     Returns: (output, error, execution_time, status)
     """
     import time
-    import ast
+    import json
     
     try:
-        # Wrap the code to call the function with test input
-        # This handles both function-based and stdin-based code
-        wrapped_code = code + f"""
+        # Use AI to intelligently parse input based on problem description
+        parsed_input_args = parse_input_with_ai(test_input, problem_description, code)
+        
+        # Check if this is a linked list problem
+        is_linked_list = 'ListNode' in code or 'Node' in code or 'linked' in problem_description.lower()
+        
+        # Build the test runner with parsed arguments
+        args_str = ', '.join([repr(arg) for arg in parsed_input_args])
+        
+        # Add ListNode conversion helper if needed
+        helper_section = ""
+        if is_linked_list:
+            helper_section = """
+# Helper to convert array to linked list
+def _array_to_linked_list(arr):
+    if not arr:
+        return None
+    import inspect
+    node_class = None
+    for name, obj in inspect.getmembers(globals()):
+        if inspect.isclass(obj) and 'Node' in name:
+            node_class = obj
+            break
+    if node_class is None:
+        return arr  # Fallback if no Node class found
+    head = node_class(arr[0])
+    current = head
+    for val in arr[1:]:
+        current.next = node_class(val)
+        current = current.next
+    return head
+
+# Helper to convert linked list back to array
+def _linked_list_to_array(head):
+    if head is None:
+        return []
+    result = []
+    current = head
+    while current:
+        if hasattr(current, 'val'):
+            result.append(current.val)
+        else:
+            result.append(current)
+        current = current.next if hasattr(current, 'next') else None
+    return result
+
+# Helper to convert tree to array (level-order)
+def _tree_to_array(root):
+    if root is None:
+        return []
+    from collections import deque
+    result = []
+    queue = deque([root])
+    while queue:
+        node = queue.popleft()
+        if node is None:
+            result.append(None)
+        else:
+            if hasattr(node, 'val'):
+                result.append(node.val)
+            else:
+                result.append(node)
+            if hasattr(node, 'left'):
+                queue.append(node.left)
+            if hasattr(node, 'right'):
+                queue.append(node.right)
+    # Trim trailing Nones
+    while result and result[-1] is None:
+        result.pop()
+    return result
+"""
+        
+        wrapped_code = code + helper_section + f"""
 
 # Auto-generated test runner
 if __name__ == '__main__':
     import sys
     try:
-        # Try to find and call the first defined function
         import inspect
-        test_input = {test_input}
+        
+        # Pre-parsed arguments from intelligent input parser
+        test_args = [{args_str}]
+        
+        # Convert array arguments to linked list if needed
+        is_linked_list = {is_linked_list}
+        if is_linked_list:
+            test_args = [_array_to_linked_list(arg) if isinstance(arg, list) else arg for arg in test_args]
         
         # Get all functions defined in this module
         current_module = sys.modules[__name__]
         functions = [obj for name, obj in inspect.getmembers(current_module) 
-                    if inspect.isfunction(obj) and obj.__module__ == __name__]
+                    if inspect.isfunction(obj) and obj.__module__ == __name__ and not name.startswith('_')]
         
         if functions:
-            # Call the first function with test input
-            result = functions[0](test_input)
+            func = functions[0]
+            # Call with unpacked arguments
+            result = func(*test_args)
+            
+            # Convert result back to array if it's a linked list or tree
+            if is_linked_list:
+                # Check if result is a node (has 'next' or 'left'/'right')
+                if hasattr(result, 'next'):
+                    result = _linked_list_to_array(result)
+                elif hasattr(result, 'left') or hasattr(result, 'right'):
+                    result = _tree_to_array(result)
+            
             print(result)
         else:
-            # If no function, the code should handle stdin
+            # If no function found, try stdin approach
             pass
     except Exception as e:
-        print(f"Error calling function: {{e}}", file=sys.stderr)
+        print(f"Error: {{e}}", file=sys.stderr)
+        import traceback
+        traceback.print_exc()
         sys.exit(1)
 """
         
@@ -291,7 +560,8 @@ def run_code(request):
             output, error, exec_time, status = execute_python_code(
                 code, 
                 test.input_data, 
-                problem.time_limit
+                problem.time_limit,
+                problem.description  # ✅ Pass problem description for AI parsing
             )
             
             # Check if output matches
@@ -401,7 +671,8 @@ def submit_code(request):
             output, error, exec_time, status = execute_python_code(
                 code,
                 test.input_data,
-                problem.time_limit
+                problem.time_limit,
+                problem.description  # ✅ Pass problem description for AI parsing
             )
             
             if status == 'success':
