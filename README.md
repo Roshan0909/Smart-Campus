@@ -26,51 +26,95 @@ Smart Campus is a full-featured LMS built with Django that includes:
 ## Project Structure
 
 ```
-campus/
-├── authentication/          # User authentication & authorization
-├── students/               # Student module
-│   ├── models.py          # Student-related models
-│   ├── urls.py            # 34 student routes
-│   ├── views/             # 14 view modules (organized by feature)
-│   │   ├── dashboard.py       (Dashboard & subjects)
-│   │   ├── pdf.py            (PDF chat & flashcards)
-│   │   ├── quiz.py           (Quiz management)
-│   │   ├── chat.py           (Messaging)
-│   │   ├── coding.py         (Coding arena)
-│   │   ├── summarizer.py     (Text summarization)
-│   │   ├── knowledge_bot.py  (AI learning assistant)
-│   │   ├── leaderboard.py    (Rankings)
-│   │   ├── practice_quiz.py  (Practice quizzes)
-│   │   ├── proctoring.py     (Exam monitoring)
-│   │   ├── profile.py        (User profile)
-│   │   └── utilities (summarizer_utils.py, leaderboard_utils.py)
-│   └── migrations/
-│
-├── teachers/              # Teacher module
-│   ├── models.py          # All models (quiz, coding, etc.)
-│   ├── urls.py            # 37 teacher routes
-│   ├── views/             # 11 view modules (organized by feature)
-│   │   ├── dashboard.py       (Dashboard & subjects)
-│   │   ├── quiz.py           (Quiz management)
-│   │   ├── reports.py        (Quiz analytics & reports)
-│   │   ├── chat.py           (Messaging)
-│   │   ├── coding.py         (Coding problem management)
-│   │   ├── proctoring.py     (Exam monitoring)
-│   │   └── utilities (quiz_generator.py, reports_generator.py, etc.)
-│   └── migrations/
-│
-├── student_campus/        # Django project settings
-│   ├── settings.py
-│   ├── urls.py
-│   ├── wsgi.py
-│   └── asgi.py
-│
-├── templates/             # HTML templates
-├── media/                 # User uploads (PDFs, images, etc.)
-├── faiss_indices/         # Vector search indices
-├── tests/                 # Test files
-├── manage.py              # Django management
-└── requirements.txt       # Python dependencies
+Smart-Campus/
+├── README.md
+└── campus/
+   ├── manage.py
+   ├── requirements.txt
+   ├── db.sqlite3
+   ├── .env                  # Create locally (not tracked)
+   ├── authentication/
+   │   ├── admin.py
+   │   ├── apps.py
+   │   ├── forms.py
+   │   ├── models.py
+   │   ├── urls.py
+   │   └── views.py
+   ├── students/
+   │   ├── models.py
+   │   ├── urls.py
+   │   ├── utils.py
+   │   ├── views/
+   │   │   ├── dashboard.py
+   │   │   ├── chat.py
+   │   │   ├── coding.py
+   │   │   ├── knowledge_bot.py
+   │   │   ├── leaderboard.py
+   │   │   ├── leaderboard_utils.py
+   │   │   ├── pdf.py
+   │   │   ├── practice_quiz.py
+   │   │   ├── proctoring.py
+   │   │   ├── profile.py
+   │   │   ├── quiz.py
+   │   │   ├── summarizer.py
+   │   │   └── summarizer_utils.py
+   │   └── migrations/
+   ├── teachers/
+   │   ├── admin.py
+   │   ├── apps.py
+   │   ├── forms.py
+   │   ├── models.py
+   │   ├── urls.py
+   │   ├── views.py
+   │   ├── views/             # Feature-specific views if used
+   │   └── migrations/
+   ├── student_campus/        # Django project settings
+   │   ├── settings.py
+   │   ├── urls.py
+   │   ├── wsgi.py
+   │   └── asgi.py
+   ├── templates/
+   │   ├── base.html
+   │   ├── authentication/
+   │   ├── students/
+   │   │   ├── base_student.html
+   │   │   ├── dashboard.html
+   │   │   ├── pdf_chat.html
+   │   │   ├── quiz.html
+   │   │   ├── quiz_report.html
+   │   │   ├── practice_quiz.html
+   │   │   ├── practice_quiz_history.html
+   │   │   ├── take_practice_quiz.html
+   │   │   ├── take_quiz.html
+   │   │   ├── knowledge_bot.html
+   │   │   ├── leaderboard.html
+   │   │   ├── coding/
+   │   │   └── chat*.html
+   │   └── teachers/
+   │       ├── base_teacher.html
+   │       ├── dashboard.html
+   │       ├── create_quiz.html
+   │       ├── quiz_reports.html
+   │       ├── quiz_analytics.html
+   │       ├── subject_detail.html
+   │       ├── proctoring_report.html
+   │       ├── coding/
+   │       └── chat*.html
+   ├── media/
+   │   ├── chat_files/2025/
+   │   ├── notes/2025/
+   │   └── proctoring/2025/
+   ├── faiss_indices/
+   │   ├── faiss_index/
+   │   └── faiss_index_*/index.faiss
+   ├── tests/
+   │   ├── app.py
+   │   ├── files.py
+   │   └── test_proctoring.py
+   ├── utils/
+   │   └── ai_fallback.py
+   └── venv/                 # Local virtualenv (not committed)
+```
 ```
 
 ## Module Organization
@@ -157,19 +201,22 @@ campus/
 
 1. **Clone the repository**
    ```bash
-   git clone <repository-url>
-   cd smart_campus
+   git clone https://github.com/Roshan0909/Smart-Campus.git
+   cd Smart-Campus
    ```
 
 2. **Create virtual environment**
    ```bash
    python -m venv venv
-   source venv/bin/activate  # On Windows: venv\Scripts\activate
+   # Windows (PowerShell)
+   .\venv\Scripts\activate
+   # macOS/Linux
+   source venv/bin/activate
    ```
 
 3. **Install dependencies**
    ```bash
-   pip install -r requirements.txt
+   pip install -r campus/requirements.txt
    ```
 
 4. **Configure environment variables**
@@ -179,6 +226,7 @@ campus/
 
 5. **Run migrations**
    ```bash
+   cd campus
    python manage.py migrate
    ```
 
@@ -195,11 +243,19 @@ campus/
 ## Configuration
 
 ### Environment Variables
+Create a `.env` in the `campus` folder (same level as `manage.py`). Example:
+
 ```
-GEMINI_API_KEY=your_api_key_here
 DEBUG=True
-DATABASE_URL=sqlite:///db.sqlite3
 SECRET_KEY=your_secret_key
+
+# Database (SQLite default)
+DATABASE_URL=sqlite:///db.sqlite3
+
+# AI / External Services
+GEMINI_API_KEY=your_api_key_here
+JUDGE0_BASE_URL=https://judge0-ce.p.rapidapi.com
+JUDGE0_API_KEY=your_rapidapi_key
 ```
 
 ### Key Settings
@@ -222,8 +278,9 @@ Used for:
 - Secure code execution
 - Multi-language support (Python, Java, C++, JavaScript, C)
 - Execution result parsing
+- Configure `JUDGE0_BASE_URL` and `JUDGE0_API_KEY` in `.env`
 
-## Database Models
+## Data & Models
 
 ### Core Models
 - **User** - Extended authentication model
@@ -258,14 +315,23 @@ Used for:
 4. Create templates if needed in `templates/`
 
 ### Testing
+From the `campus` directory:
+
 ```bash
 python manage.py test
+pytest -q  # if pytest is installed
 ```
 
-## Performance Optimization
+Key tests:
+- `tests/test_proctoring.py`: validates image snapshot handling
+- `tests/files.py`: helpers for file-based tests
+
+## Performance & Storage
 
 - Database query optimization with `select_related()` and `prefetch_related()`
-- FAISS indices for vector search (knowledge base)
+- FAISS indices for vector search (knowledge bot)
+- Media directories are date-namespaced (e.g., `media/proctoring/2025/`)
+- Large FAISS indices are stored in `faiss_indices/*/index.faiss`
 - Caching for frequently accessed data
 - Lazy loading of PDF content
 
@@ -290,23 +356,19 @@ python manage.py test
 - Run migrations: `python manage.py migrate`
 - Check database connection in settings
 
+**Static/Media Files Not Appearing**
+- Ensure `MEDIA_ROOT` and `MEDIA_URL` are set in `student_campus/settings.py`
+- During development, use `django.conf.urls.static` for media serving
+
 **API Integration Issues**
 - Verify API keys in environment variables
 - Check Judge0 API availability
 - Ensure Gemini API is enabled
 
-## Support
-
-For issues and feature requests, contact the development team or submit an issue on the repository.
-
-## License
-
-Proprietary - All rights reserved
-
-## Contributors
-
-Smart Campus Development Team
+**FAISS Index Errors**
+- Verify the presence of `faiss_indices/*/index.faiss`
+- Ensure compatible FAISS version in `requirements.txt`
 
 ---
 
-**Last Updated**: December 2025
+**Last Updated**: December 2025 (reflects current workspace structure)

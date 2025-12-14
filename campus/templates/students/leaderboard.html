@@ -116,13 +116,13 @@
     {% if current_student_data %}
     <div class="your-stats-bar">
         <div class="stats-compact">
-            <div class="your-position">
-                <span class="position-icon" style="background: {{ current_student_data.badge.color }};">
+            <div class="your-position" style="--your-badge-color: {{ current_student_data.badge.color }}; --your-tier-color: {{ current_student_data.tier.color }};">
+                <span class="position-icon">
                     {{ current_student_data.badge.icon }}
                 </span>
                 <div class="position-text">
                     <strong>Your Rank: #{{ current_student_data.rank }}</strong>
-                    <span style="color: {{ current_student_data.tier.color }};">{{ current_student_data.tier.name }} Tier</span>
+                    <span class="position-tier">{{ current_student_data.tier.name }} Tier</span>
                 </div>
             </div>
             
@@ -145,18 +145,18 @@
         
         {% if leaderboard %}
             {% for entry in leaderboard %}
-            <div class="leaderboard-item {% if entry.student.id == user.id %}current-user{% endif %} {% if entry.rank <= 3 %}top-three{% endif %}" 
-                 style="animation-delay: calc({{ forloop.counter0 }} * 0.1s);">
+              <div class="leaderboard-item {% if entry.student.id == user.id %}current-user{% endif %} {% if entry.rank <= 3 %}top-three{% endif %}" 
+                  style="--rank-delay: {{ forloop.counter0 }};">
                 
                 <!-- Rank Badge -->
-                <div class="item-rank" style="background: {{ entry.badge.color }};">
+                <div class="item-rank" style="--badge-color: {{ entry.badge.color }};">
                     <span class="rank-icon">{{ entry.badge.icon }}</span>
                     <span class="rank-num">#{{ entry.rank }}</span>
                 </div>
                 
                 <!-- Student Info -->
                 <div class="student-info">
-                    <div class="student-avatar" style="background: linear-gradient(135deg, {{ entry.tier.color }} 0%, #764ba2 100%);">
+                    <div class="student-avatar" style="--tier-color: {{ entry.tier.color }};">
                         {{ entry.student.username|slice:":1"|upper }}
                     </div>
                     <div class="student-details">
@@ -191,7 +191,7 @@
                 
                 <!-- Progress Bar -->
                 <div class="progress-bar-container">
-                    <div class="progress-bar" style="width: {{ entry.engagement_score }}%; background: linear-gradient(90deg, {{ entry.tier.color }}, #764ba2);"></div>
+                    <div class="progress-bar" style="--progress: {{ entry.engagement_score }}; --tier-color: {{ entry.tier.color }};"></div>
                 </div>
             </div>
             {% endfor %}
@@ -963,6 +963,7 @@
         justify-content: center;
         font-size: 1.2rem;
         color: white;
+        background: var(--your-badge-color, #06B6D4);
         box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
     }
     
@@ -979,7 +980,10 @@
     .position-text span {
         font-size: 0.9rem;
         font-weight: 600;
-        color: #0ea5e9;
+    }
+
+    .position-tier {
+        color: var(--your-tier-color, #0ea5e9);
     }
     
     .quick-stats {
@@ -1038,6 +1042,7 @@
         box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
         transition: all 0.3s ease;
         animation: slide-in 0.5s ease forwards;
+        animation-delay: calc(var(--rank-delay, 0) * 0.1s);
         opacity: 0;
         transform: translateX(-50px);
     }
@@ -1076,6 +1081,7 @@
         align-items: center;
         justify-content: center;
         color: white;
+        background: var(--badge-color, #06B6D4);
         font-weight: 800;
         box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
     }
@@ -1106,6 +1112,7 @@
         font-size: 1.3rem;
         font-weight: 800;
         color: white;
+        background: linear-gradient(135deg, var(--tier-color, #06B6D4) 0%, #764ba2 100%);
         box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
     }
     
@@ -1183,6 +1190,8 @@
         height: 100%;
         transition: width 1s ease;
         position: relative;
+        width: calc(var(--progress, 0) * 1%);
+        background: linear-gradient(90deg, var(--tier-color, #06B6D4), #764ba2);
     }
     
     .progress-bar::after {
