@@ -144,9 +144,14 @@ def get_answer_from_context(context, question, chat_history=""):
         history_text = f"\nPrevious conversation:\n{chat_history}\n"
     
     prompt = f"""
-    Answer the question in a detailed manner from the provided context. Make sure to provide all the details. 
-    If the answer is not in the provided context, then just say, "answer is not available in the context." 
-    Don't provide the wrong answer.
+    You are a precise document assistant. Answer ONLY based on the provided context below.
+    
+    STRICT RULES:
+    - Use ONLY information from the provided context
+    - Do NOT use any external knowledge or information
+    - If the answer is not explicitly in the context, respond: "Answer is not available in the provided document."
+    - Do NOT make assumptions or inferences beyond what is directly stated
+    - Quote relevant parts from the context when answering
     {history_text}
     Context:
     {context}
@@ -154,7 +159,7 @@ def get_answer_from_context(context, question, chat_history=""):
     Question:
     {question}
     
-    Answer:
+    Answer (based ONLY on the context above):
     """
     
     response = generate_content(prompt)
