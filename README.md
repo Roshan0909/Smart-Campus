@@ -115,7 +115,6 @@ Smart-Campus/
    │   └── ai_fallback.py
    └── venv/                 # Local virtualenv (not committed)
 ```
-```
 
 ## Module Organization
 
