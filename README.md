@@ -171,32 +171,6 @@ Smart-Campus/
 - 💬 **Direct Messaging**: Communicate with students
 - 👀 **Exam Proctoring**: Monitor and review exam violations
 
-## Routes Overview
-
-### Student Routes (34 total)
-```
-/student/dashboard/                    - Dashboard
-/student/coding/*                      - Coding arena (6 routes)
-/student/subject/<id>/                 - Subject detail
-/student/pdf-chat/<id>/                - PDF interaction
-/student/quiz/*                        - Quiz management (4 routes)
-/student/chat/*                        - Messaging (2 routes)
-/student/knowledge-bot/*               - AI assistant (2 routes)
-/student/leaderboard/                  - Rankings
-/student/practice-quiz/*               - Practice quizzes (5 routes)
-```
-
-### Teacher Routes (37 total)
-```
-/teacher/dashboard/                    - Dashboard
-/teacher/coding/*                      - Coding management (10 routes)
-/teacher/subject/*                     - Subject management (5 routes)
-/teacher/quiz/*                        - Quiz management (5 routes)
-/teacher/chat/*                        - Messaging (4 routes)
-/teacher/proctoring/<id>/              - Exam monitoring
-/teacher/reports/*                     - Analytics (6 routes)
-```
-
 ## Installation
 
 1. **Clone the repository**
